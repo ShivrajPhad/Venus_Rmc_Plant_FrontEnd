@@ -1,0 +1,237 @@
+<article class="batch-details-paper" aria-label="Docket report">
+  <header class="company-heading">
+    <strong>SHREE MAHALAXMI READYMIX</strong>
+  </header>
+
+  <div class="report-banner">
+    <div class="logo-row">
+      <img src="/venus-docket-logo.png" alt="Venus Techno Equipment Pvt. Ltd." />
+      <strong
+        >{{ report.site.siteName
+        }}{{ report.site.siteAddress ? ', ' + report.site.siteAddress : '' }}</strong
+      >
+    </div>
+    <h1>Docket Report</h1>
+  </div>
+
+  <section class="docket-fields" aria-label="Selected docket details">
+    <div class="docket-row primary-details">
+      <div class="docket-pair-group">
+        <span class="docket-pair"><b>Docket No:</b><span>456987</span></span>
+        <span class="docket-pair">
+          <b>&nbsp;</b><span>{{ formatDate(report.generatedAt) }}</span>
+        </span>
+      </div>
+      <div class="docket-pair-group">
+        <span class="docket-pair">
+          <b>Truck</b><span>{{ report.truck.truckNumber }}</span>
+        </span>
+        <span class="docket-pair driver">
+          <b>Driver</b><span>{{ report.driver.driverName }}</span>
+        </span>
+      </div>
+      <div class="docket-pair-group">
+        <span class="docket-pair">
+          <b>Start</b><span>{{ formatTime(report.startTime) }}</span>
+        </span>
+        <span class="docket-pair">
+          <b>End</b><span>{{ formatTime(report.generatedAt.toISOString()) }}</span>
+        </span>
+      </div>
+    </div>
+    <div class="docket-row party-details ">
+      <div class="customer">
+        <b>Customer:</b><span class="customerdetails">{{ report.customer.customerName }}</span>
+      </div>
+      <div class="customer">
+        <b >Site:</b><span class="customerdetails">{{ report.site.siteName }}</span>
+      </div>
+    </div>
+    <div class="docket-row address-details">
+      <div class="customerborder">
+        <b>C.Address:</b><span class="customerborder">{{ report.customer.customerAddress || '—' }}</span>
+      </div>
+      <div class="customerborder">
+        <b>S.Address:</b><span class="customerborder">{{ report.site.siteAddress || '—' }}</span>
+      </div>
+    </div>
+  </section>
+
+  <table class="recipe-summary" aria-label="Recipe and order details">
+    <colgroup>
+      <col style="width: 13%" />
+      <col style="width: 13%" />
+      <col style="width: 28.545%" />
+      <col style="width: 13%" />
+      <col style="width: 13%" />
+      <col style="width: 9.7275%" />
+      <col style="width: 9.7275%" />
+    </colgroup>
+    <thead>
+      <tr>
+        <th scope="col">Recipe</th>
+        <th scope="col">TH Volume</th>
+        <th scope="col">Order</th>
+        <th scope="col">Delivered/Ordered</th>
+        <th scope="col">Report Date</th>
+        <th scope="col">Batch Count</th>
+        <th scope="col">Batch Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ report.recipe.recipeName }}</td>
+        <td>{{ formatNumber(recipeTotal) }} Kg/M³</td>
+        <td>{{ report.customer.customerName }}</td>
+        <td>{{ formatNumber(report.loadQuantity, 2) }} / —</td>
+        <td>{{ formatDate(report.generatedAt) }}</td>
+        <td>{{ formatNumber(batchCount, 0) }}</td>
+        <td>{{ formatNumber(report.batchSize, 2) }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="table-scroll">
+    <table class="batch-table">
+      <colgroup>
+        <col class="batch-number-column" />
+        <col class="batch-seconds-column" />
+        @for (column of visibleColumns; track column.id) {
+          <col [style.width.%]="dataColumnWidth" />
+        }
+      </colgroup>
+      <thead>
+        <tr class="group-head">
+          @for (group of visibleColumnGroups; track group.label) {
+              @if (group.label === 'Batch') {
+                <th colspan="2"></th>
+              } @else {
+                <th [attr.colspan]="group.colspan">{{ group.label }}</th>
+              }
+            }
+          </tr>
+          <tr class="material-head small-head">
+            <th colspan="2">Batch</th>
+            @for (column of visibleColumns; track column.id) {
+              <th>{{ column.id === 'total' ? '' : column.label }}</th>
+            }
+          </tr>
+          <tr class="unit-head">
+            <th>No</th>
+            <th>Sec</th>
+            @for (column of visibleColumns; track column.id) {
+              <th>Kg</th>
+            }
+          </tr>
+      </thead>
+      <tbody>
+        @for (row of batchRows; track row.number) {
+          <tr>
+            <td>{{ row.number }}</td>
+            <td>{{ row.seconds }}</td>
+            @for (column of visibleColumns; track column.id) {
+              <td>{{ formatNumber(getColumnValue(row, column), column.precision) }}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="summary-scroll">
+    <table class="recipe-totals" aria-label="Recipe set totals" [style.width.%]="summaryTableWidth">
+      <colgroup>
+        <col [style.width.%]="summaryIdentifierNumberWidth" />
+        <col [style.width.%]="summaryIdentifierSecondsWidth" />
+        @for (column of summaryColumns; track column.id) {
+          <col [style.width.%]="summaryDataColumnWidth" />
+        }
+      </colgroup>
+      <tbody>
+        <tr>
+          <th colspan="2">Moisture (%)</th>
+          @for (column of summaryColumns; track column.id) {
+            <td>
+              @let moisture = getMoisturePercent(column);
+              @if (moisture !== null) {
+                {{ formatNumber(moisture, 2) }}
+              }
+            </td>
+          }
+        </tr>
+        <tr>
+          <th colspan="2">Moisture (Kg)</th>
+          @for (column of summaryColumns; track column.id) {
+            <td>
+              @let moisture = getMoistureKg(column);
+              @if (moisture !== null) {
+                {{ formatNumber(moisture, column.precision) }}
+              }
+            </td>
+          }
+        </tr>
+        <tr class="summary-total-row">
+          <th colspan="2">ACT TOTAL</th>
+          @for (column of summaryColumns; track column.id) {
+            <td>
+              {{ formatNumber(getSummaryValue(cumulative, column), column.precision) }}
+            </td>
+          }
+        </tr>
+        <tr class="summary-total-row">
+          <th colspan="2">TAR. TOTAL</th>
+          @for (column of summaryColumns; track column.id) {
+            <td>
+              {{ formatNumber(getSummaryValue(targetTotal, column), column.precision) }}
+            </td>
+          }
+        </tr>
+        <tr>
+          <th colspan="2">AVERAGE</th>
+          @for (column of summaryColumns; track column.id) {
+            <td>
+              {{ formatNumber(getSummaryValue(average, column), column.precision) }}
+            </td>
+          }
+        </tr>
+        <tr class="summary-total-row">
+          <th colspan="2">TARGET</th>
+          @for (column of summaryColumns; track column.id) {
+            <td>
+              {{ formatNumber(getSummaryValue(target, column), column.precision) }}
+            </td>
+          }
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section class="report-totals" aria-label="Production summary">
+    <div class="production-summary">
+      <p>
+        <b>Cummulative Actual Total :</b><strong>{{ formatNumber(cumulativeTotal) }}</strong>
+      </p>
+      <p>
+        <b>Total Cycle :</b><strong>{{ formatNumber(batchCount, 0) }}</strong>
+      </p>
+      <p><b>Cycle Status :</b><strong>Recipe Calculated</strong></p>
+    </div>
+    <div class="production-summary">
+      <p>
+        <b>Production Qty :</b>
+        <strong>{{ formatNumber(report.loadQuantity, 2) }} M³</strong>
+      </p>
+      <p>
+        <b>W/C Ratio :</b>
+        <strong>
+          {{ waterCementRatio === null ? '—' : formatNumber(waterCementRatio, 2) }}
+        </strong>
+      </p>
+    </div>
+  </section>
+
+  <footer class="signatures">
+    <span>Signature1:<i></i></span>
+    <span>Signature 2:<i></i></span>
+  </footer>
+</article>

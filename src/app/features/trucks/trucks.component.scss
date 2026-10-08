@@ -1,0 +1,282 @@
+.truck-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 18px 0 12px;
+}
+
+.data-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #e6ecee;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.card-heading {
+  min-height: 67px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 19px;
+  border-bottom: 1px solid #edf0f2;
+}
+
+.card-heading h2 {
+  margin: 0;
+  color: #253f4e;
+  font-size: 14px;
+}
+
+.card-heading p {
+  margin: 5px 0 0;
+  color: #929fa5;
+  font-size: 11px;
+}
+
+.heading-actions,
+.pagination-controls,
+.dialog-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.record-count {
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #edf6f3;
+  color: #087a60;
+  font-size: 10px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.primary-button,
+.secondary-button,
+.edit-button,
+.page-button,
+.close-button {
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.primary-button {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 14px;
+  background: #087a60;
+  color: #fff;
+}
+
+.primary-button:hover:not(:disabled) {
+  background: #06664f;
+}
+
+.primary-button:disabled,
+.secondary-button:disabled,
+.close-button:disabled,
+.page-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th,
+td {
+  max-width: 340px;
+  padding: 11px 19px;
+  border-bottom: 1px solid #f0f2f3;
+  color: #526771;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+th {
+  background: #fafbfb;
+  color: #7a8a91;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.edit-button,
+.page-button,
+.secondary-button,
+.close-button {
+  padding: 8px 11px;
+  background: #f0f4f5;
+  color: #405763;
+}
+
+.page-button {
+  white-space: nowrap;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 19px;
+  border-top: 1px solid #edf0f2;
+  color: #71818a;
+  font-size: 11px;
+}
+
+.pagination-controls {
+  flex-wrap: wrap;
+}
+
+.pagination select {
+  padding: 7px 9px;
+  border: 1px solid #dce5e8;
+  border-radius: 5px;
+  background: #fff;
+  color: #405763;
+}
+
+.table-message {
+  padding: 22px 19px;
+  color: #84929a;
+  font-size: 12px;
+}
+
+.error-message,
+.form-error,
+.field-error {
+  color: #b42318;
+}
+
+.success-message {
+  padding: 11px 19px;
+  border-bottom: 1px solid #d9eee5;
+  background: #f2faf6;
+  color: #087a60;
+  font-size: 12px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(19 37 48 / 48%);
+}
+
+.truck-dialog {
+  width: min(100%, 480px);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 23px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 18px 60px rgb(15 35 45 / 24%);
+}
+
+.dialog-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.eyebrow {
+  margin: 0 0 7px;
+  color: #087a60;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+}
+
+.dialog-heading h2 {
+  margin: 0;
+  color: #173043;
+  font-size: 20px;
+}
+
+.close-button {
+  padding: 3px 9px 6px;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.truck-dialog form {
+  display: grid;
+  gap: 8px;
+}
+
+.truck-dialog label {
+  margin-top: 8px;
+  color: #405763;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.truck-dialog input {
+  width: 100%;
+  padding: 10px 11px;
+  border: 1px solid #dce5e8;
+  border-radius: 6px;
+  color: #253f4e;
+  font-size: 13px;
+}
+
+.truck-dialog input:focus {
+  border-color: #087a60;
+  outline: 2px solid rgb(8 122 96 / 14%);
+}
+
+.field-error,
+.form-error {
+  font-size: 11px;
+}
+
+.dialog-actions {
+  justify-content: flex-end;
+  margin-top: 17px;
+}
+
+@media (max-width: 640px) {
+  .card-heading,
+  .pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .heading-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .truck-toolbar {
+    margin-top: 14px;
+  }
+
+  .pagination-controls {
+    justify-content: flex-start;
+  }
+}

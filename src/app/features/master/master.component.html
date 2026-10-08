@@ -1,0 +1,12 @@
+<div class="sections">
+  @for (link of links; track link.route) {
+    <a class="master-card" [routerLink]="link.route">
+      <span class="card-mark" aria-hidden="true">›</span>
+      <span class="card-copy">
+        <strong>{{ link.title }}</strong>
+        <span>{{ link.description }}</span>
+      </span>
+      <span class="card-arrow" aria-hidden="true">→</span>
+    </a>
+  }
+</div>

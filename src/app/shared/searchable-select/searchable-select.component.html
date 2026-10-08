@@ -1,0 +1,48 @@
+<div class="searchable-select">
+  <button
+    class="select-trigger"
+    type="button"
+    [id]="id"
+    [disabled]="disabled"
+    [attr.aria-label]="ariaLabel"
+    [attr.aria-expanded]="open"
+    aria-haspopup="listbox"
+    [attr.aria-controls]="id + '-menu'"
+    (click)="toggle()"
+  >
+    <span [class.placeholder]="selectedValue === null">
+      {{ selectedLabel || placeholder }}
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </button>
+
+  @if (open) {
+    <div class="select-menu" [id]="id + '-menu'">
+      <input
+        type="search"
+        class="select-search"
+        [(ngModel)]="search"
+        [ngModelOptions]="{ standalone: true }"
+        [attr.aria-label]="'Search ' + ariaLabel.toLowerCase()"
+        placeholder="Type to search..."
+      />
+      <div class="select-options" role="listbox" [attr.aria-label]="ariaLabel">
+        @for (option of filteredOptions; track option.value) {
+          <div
+            class="select-option"
+            role="option"
+            tabindex="0"
+            [attr.aria-selected]="option.value === selectedValue"
+            (click)="select(option)"
+            (keydown.enter)="select(option)"
+            (keydown.space)="select(option); $event.preventDefault()"
+          >
+            {{ option.label }}
+          </div>
+        } @empty {
+          <p class="no-options">No matching options</p>
+        }
+      </div>
+    </div>
+  }
+</div>

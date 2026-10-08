@@ -1,0 +1,41 @@
+<main class="login-page">
+  <section class="login-card" aria-labelledby="login-title">
+    <div class="brand-mark" aria-hidden="true">V</div>
+    <p class="eyebrow">VENUS RMC PORTAL</p>
+    <h1 id="login-title">Welcome back</h1>
+    <p class="intro">Sign in to manage your plant operations.</p>
+
+    <form (ngSubmit)="submit()" #loginForm="ngForm">
+      <label for="username">Username</label>
+      <input
+        id="username"
+        name="username"
+        type="text"
+        autocomplete="username"
+        placeholder="Enter your username"
+        [(ngModel)]="username"
+        required
+      />
+
+      <label for="password">Password</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        autocomplete="current-password"
+        placeholder="Enter your password"
+        [(ngModel)]="password"
+        required
+      />
+
+      @if (error) {
+        <p class="error-message" role="alert">{{ error }}</p>
+      }
+
+      <button type="submit" [disabled]="loginForm.invalid || submitting">
+        {{ submitting ? 'Signing in…' : 'Sign in' }}
+      </button>
+    </form>
+    <p class="secure-note">Secure access to your RMC operations</p>
+  </section>
+</main>

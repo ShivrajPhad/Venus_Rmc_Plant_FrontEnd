@@ -1,1 +1,276 @@
-/* You can add global styles to this file, and also import other style files */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #f4f6f8;
+  color: #172b3a;
+  font-family: Inter, 'Segoe UI', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.column-config {
+  margin: 20px 0 0;
+  padding: 14px;
+  border: 1px solid #dce5e8;
+  border-radius: 6px;
+}
+
+.column-config legend {
+  padding: 0 5px;
+  color: #405763;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.column-config-help {
+  margin: 0 0 12px;
+  color: #71818a;
+  font-size: 11px;
+}
+
+.column-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px 14px;
+}
+
+.column-option {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #405763;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.column-option input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: #087a60;
+}
+
+@media (max-width: 850px) {
+  .column-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .column-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media print {
+  @page {
+    size: 210mm 280mm;
+    margin: 2mm;
+  }
+
+  body.printing-batch-details {
+    background: #fff;
+  }
+
+  body.printing-batch-details * {
+    visibility: hidden !important;
+  }
+
+  body.printing-batch-details app-batch-details,
+  body.printing-batch-details app-batch-details * {
+    visibility: visible !important;
+  }
+
+  body.printing-batch-details app-batch-details {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    margin: 0;
+  }
+
+  body.printing-batch-details app-batch-details .batch-details-paper {
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body.printing-batch-details app-batch-details .company-heading strong {
+    font:
+      700 14.5pt Arial,
+      Helvetica,
+      sans-serif;
+  }
+
+  body.printing-batch-details app-batch-details .company-heading {
+    min-height: 24pt;
+    line-height: 19.75pt;
+  }
+
+  body.printing-batch-details app-batch-details .report-banner {
+    margin: 1.5pt 0 3pt;
+  }
+
+  body.printing-batch-details app-batch-details .logo-row {
+    min-height: 34.685pt;
+    line-height: 12pt;
+  }
+
+  body.printing-batch-details app-batch-details .logo-row img {
+    width: 40mm;
+    height: auto;
+    max-height: 8.5mm;
+    object-fit: contain;
+  }
+
+  body.printing-batch-details app-batch-details .report-banner h1 {
+    min-height: 16.25pt;
+    padding: 1pt 4pt;
+    line-height: 12.75pt;
+  }
+
+  body.printing-batch-details app-batch-details .docket-row > div {
+    min-height: 13pt;
+    line-height: 11pt;
+  }
+
+  body.printing-batch-details app-batch-details .logo-row strong {
+    font:
+      700 10.5pt Arial,
+      Helvetica,
+      sans-serif;
+  }
+
+  body.printing-batch-details app-batch-details .report-banner h1 {
+    font:
+      700 12.5pt Arial,
+      Helvetica,
+      sans-serif;
+  }
+
+  body.printing-batch-details app-batch-details .docket-row > div {
+    font:
+      8.5pt Arial,
+      Helvetica,
+      sans-serif;
+  }
+
+  body.printing-batch-details app-batch-details .docket-row b {
+    font-weight: 700;
+  }
+
+  body.printing-batch-details app-batch-details .docket-row span {
+    font-size: 8.5pt;
+  }
+
+  body.printing-batch-details app-batch-details .recipe-summary th,
+  body.printing-batch-details app-batch-details .recipe-summary td {
+    font:
+      8.5pt Arial,
+      Helvetica,
+      sans-serif;
+  }
+
+  body.printing-batch-details app-batch-details .recipe-summary th {
+    font-weight: 700;
+  }
+
+  body.printing-batch-details app-batch-details .recipe-summary td {
+    font-weight: 400;
+  }
+
+  body.printing-batch-details app-batch-details table {
+    font:
+      8.5pt/9.5pt Arial,
+      Helvetica,
+      sans-serif;
+  }
+
+  body.printing-batch-details app-batch-details .batch-table .group-head th {
+    height: 19.5pt;
+    font-size: 11.5pt;
+    font-weight: 700;
+    line-height: 10.5pt;
+  }
+
+  body.printing-batch-details app-batch-details .batch-table .group-head th:first-child {
+    font:
+      700 6.5pt/9.5pt 'Arial Narrow',
+      Arial,
+      sans-serif;
+  }
+
+  body.printing-batch-details app-batch-details .batch-table .material-head.small-head th {
+    font:
+      700 8px/9.5pt Arial,
+      Helvetica,
+      sans-serif;
+  }
+
+  body.printing-batch-details app-batch-details .batch-table .material-head:not(.small-head) th {
+    font:
+      700 9pt/9.5pt Arial,
+      Helvetica,
+      sans-serif;
+  }
+
+  body.printing-batch-details app-batch-details .batch-table .unit-head th {
+    font:
+      700 8.5pt/9.5pt Arial,
+      Helvetica,
+      sans-serif;
+  }
+
+  body.printing-batch-details app-batch-details .batch-table tbody td {
+    font:
+      8.5pt/9.5pt Arial,
+      Helvetica,
+      sans-serif;
+  }
+
+  body.printing-batch-details app-batch-details .recipe-totals th,
+  body.printing-batch-details app-batch-details .recipe-totals td {
+    font:
+      8.5pt Arial,
+      Helvetica,
+      sans-serif;
+  }
+
+  body.printing-batch-details app-batch-details .recipe-totals td {
+    font-weight: 400;
+  }
+
+  body.printing-batch-details app-batch-details .recipe-totals .summary-total-row th,
+  body.printing-batch-details app-batch-details .recipe-totals .summary-total-row td {
+    font-weight: 700;
+  }
+
+  body.printing-batch-details app-batch-details .production-summary p,
+  body.printing-batch-details app-batch-details .signatures {
+    font:
+      10.5pt Arial,
+      Helvetica,
+      sans-serif;
+  }
+
+  body.printing-batch-details app-batch-details .production-summary b,
+  body.printing-batch-details app-batch-details .signatures {
+    font-weight: 700;
+  }
+
+  body.printing-batch-details app-batch-details .production-summary strong {
+    font-weight: 400;
+  }
+}

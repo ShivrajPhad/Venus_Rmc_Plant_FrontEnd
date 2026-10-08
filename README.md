@@ -12,6 +12,49 @@ ng serve
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
+## Authentication and master data
+
+The application opens on the login page. It sends the username and password to
+`https://localhost:44391/api/Authantication/login`, stores the returned JWT in
+browser local storage, and sends it as a Bearer token on master-data requests.
+After signing in, the master layout provides Dashboard and Batch Report
+navigation. Dashboard displays:
+
+- Truck Details: `/api/Master/GetTruckDetails`
+- Driver Details: `/api/Master/GetDriverDetails`
+- Recipe Details: `/api/Master/GetRecipeDetails`
+- Customer Details: `/api/Master/GetCustomerDetails`
+- Site Details: `/api/Master/GetSiteDetailsDetails`
+
+Customer Details creates and updates customers through the
+`/api/Master/SaveCustomer` POST endpoint. The request includes the customer ID
+for updates, active status, and the signed-in user's ID from the JWT. The
+customer table is searchable and paginated in the browser.
+
+Site Details creates and updates sites through the `/api/Master/SaveSite` POST
+endpoint. Select a customer before entering the site name and address.
+
+Truck Details creates and updates trucks through the
+`/api/Master/SaveTruckDetails` POST endpoint. The truck table is paginated in
+the browser.
+
+Driver Details creates and updates drivers through the
+`/api/Master/SaveDriverDetails` POST endpoint. Driver name and mobile number
+are required, and the driver table is paginated in the browser.
+
+Recipe Details creates and updates recipes through the
+`/api/Master/SaveRecipeDetails` POST endpoint. Select a customer and enter
+recipe details and mix quantities; the recipe table is paginated in the
+browser.
+
+Batch Report loads customer, site, recipe, driver, and truck options from the
+master data API. Select the report details and generate a docket-style preview;
+the Save report action downloads the generated report as a CSV file.
+
+The API must be running and its HTTPS development certificate must be trusted by
+the browser. The API must also allow cross-origin requests from the frontend
+origin.
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:

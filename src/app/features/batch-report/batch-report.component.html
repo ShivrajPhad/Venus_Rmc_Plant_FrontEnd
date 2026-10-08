@@ -1,0 +1,202 @@
+<section class="report-card form-card" aria-labelledby="report-details-title">
+  <div class="card-heading">
+    <div>
+      <p class="section-kicker">REPORT DETAILS</p>
+      <h2 id="report-details-title">Batch information</h2>
+    </div>
+    <span class="required-note">* Required fields</span>
+  </div>
+
+  @if (dataError) {
+    <p class="message error-message" role="alert">{{ dataError }}</p>
+  } @else if (loading) {
+    <p class="message loading-message" role="status">
+      Loading customers, sites, recipes, drivers, and trucks…
+    </p>
+  }
+
+  <form #reportForm="ngForm" (ngSubmit)="generate(reportForm)">
+    <div class="form-grid">
+      <div class="field">
+        <label for="customer">Customer <span aria-hidden="true">*</span></label>
+        <app-searchable-select
+          id="customer"
+          name="customerId"
+          ariaLabel="Customer"
+          placeholder="Select customer"
+          [options]="customerOptions"
+          [disabled]="!!dataError"
+          [(ngModel)]="customerId"
+          (ngModelChange)="onCustomerChange()"
+          [required]="true"
+        />
+      </div>
+
+      <div class="field">
+        <label for="site">Site <span aria-hidden="true">*</span></label>
+        <app-searchable-select
+          id="site"
+          name="siteId"
+          ariaLabel="Site"
+          placeholder="Select site"
+          [options]="siteOptions"
+          [disabled]="dropdownsDisabled || customerId === null"
+          [(ngModel)]="siteId"
+          (ngModelChange)="onSiteChange()"
+          [required]="true"
+        />
+      </div>
+
+      <div class="field">
+        <label for="recipe">Recipe <span aria-hidden="true">*</span></label>
+        <app-searchable-select
+          id="recipe"
+          name="recipeId"
+          ariaLabel="Recipe"
+          placeholder="Select recipe"
+          [options]="recipeOptions"
+          [disabled]="dropdownsDisabled || customerId === null"
+          [(ngModel)]="recipeId"
+          (ngModelChange)="invalidateReport()"
+          [required]="true"
+        />
+      </div>
+
+      <div class="field">
+        <label for="driver">Driver <span aria-hidden="true">*</span></label>
+        <app-searchable-select
+          id="driver"
+          name="driverId"
+          ariaLabel="Driver"
+          placeholder="Select driver"
+          [options]="driverOptions"
+          [disabled]="dropdownsDisabled"
+          [(ngModel)]="driverId"
+          (ngModelChange)="invalidateReport()"
+          [required]="true"
+        />
+      </div>
+
+      <div class="field">
+        <label for="truck">Truck <span aria-hidden="true">*</span></label>
+        <app-searchable-select
+          id="truck"
+          name="truckId"
+          ariaLabel="Truck"
+          placeholder="Select truck"
+          [options]="truckOptions"
+          [disabled]="dropdownsDisabled"
+          [(ngModel)]="truckId"
+          (ngModelChange)="invalidateReport()"
+          [required]="true"
+        />
+      </div>
+
+      <div class="field">
+        <label for="load-quantity">Load quantity <span aria-hidden="true">*</span></label>
+        <input
+          id="load-quantity"
+          name="loadQuantity"
+          type="number"
+          min="0.001"
+          step="any"
+          inputmode="decimal"
+          placeholder="Enter load quantity"
+          [(ngModel)]="loadQuantity"
+          (ngModelChange)="invalidateReport()"
+          required
+        />
+      </div>
+
+      <div class="field">
+        <label for="batch-size">Batch size <span aria-hidden="true">*</span></label>
+        <input
+          id="batch-size"
+          name="batchSize"
+          type="number"
+          min="0.001"
+          step="any"
+          inputmode="decimal"
+          placeholder="Enter batch size"
+          [(ngModel)]="batchSize"
+          (ngModelChange)="invalidateReport()"
+          required
+        />
+      </div>
+
+      <div class="field">
+        <label for="start-time">Start time <span aria-hidden="true">*</span></label>
+        <input
+          id="start-time"
+          name="startTime"
+          type="datetime-local"
+          [(ngModel)]="startTime"
+          (ngModelChange)="invalidateReport()"
+          required
+        />
+      </div>
+    </div>
+
+    <fieldset class="column-config">
+      <legend>Report table columns</legend>
+      <p class="column-config-help">
+        Choose which recipe columns to include. Batch number and seconds always remain visible.
+      </p>
+      <div class="column-options">
+        @for (column of reportColumns; track column.id) {
+          <label class="column-option">
+            <input
+              type="checkbox"
+              [name]="'report-column-' + column.id"
+              [ngModel]="column.selected"
+              (ngModelChange)="column.selected = $event; invalidateReport()"
+              [ngModelOptions]="{ standalone: true }"
+            />
+            <span>{{ column.group }} — {{ column.label }}</span>
+          </label>
+        }
+      </div>
+    </fieldset>
+
+    @if (formError) {
+      <p class="message error-message" role="alert">{{ formError }}</p>
+    }
+
+    <div class="form-actions">
+      <button
+        class="button button-primary"
+        type="submit"
+        [disabled]="reportForm.invalid || loading || !!dataError"
+      >
+        Generate report
+      </button>
+      <button class="button button-secondary" type="button" (click)="clear(reportForm)">
+        Clear
+      </button>
+    </div>
+  </form>
+</section>
+
+@if (report; as generatedReport) {
+  <section class="report-card preview-card" aria-labelledby="preview-title">
+    <div class="preview-heading">
+      <p class="section-kicker">GENERATED REPORT</p>
+      <h2 id="preview-title">Batch details</h2>
+      <p>Generated {{ formatReportDate(generatedReport.generatedAt) }}</p>
+    </div>
+
+    <app-batch-details [report]="generatedReport" />
+
+    <div class="save-actions">
+      <button class="button button-primary" type="button" (click)="printReport()">
+        Print / Save as PDF
+      </button>
+      <button class="button button-secondary" type="button" (click)="saveReport()">
+        Download CSV
+      </button>
+      @if (saveMessage) {
+        <p class="save-message" role="status">{{ saveMessage }}</p>
+      }
+    </div>
+  </section>
+}

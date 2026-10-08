@@ -1,0 +1,82 @@
+.data-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #e6ecee;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.card-heading {
+  min-height: 67px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 19px;
+  border-bottom: 1px solid #edf0f2;
+}
+
+.card-heading h2 {
+  margin: 0;
+  color: #253f4e;
+  font-size: 14px;
+}
+
+.card-heading p {
+  margin: 5px 0 0;
+  color: #929fa5;
+  font-size: 11px;
+}
+
+.record-count {
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #edf6f3;
+  color: #087a60;
+  font-size: 10px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th,
+td {
+  max-width: 340px;
+  padding: 11px 19px;
+  border-bottom: 1px solid #f0f2f3;
+  color: #526771;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+th {
+  background: #fafbfb;
+  color: #7a8a91;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table-message {
+  padding: 22px 19px;
+  color: #84929a;
+  font-size: 12px;
+}
+
+.error-message {
+  color: #b42318;
+}

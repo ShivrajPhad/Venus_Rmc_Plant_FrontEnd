@@ -1,0 +1,86 @@
+<div class="master-shell">
+  <aside class="sidebar" [class.menu-open]="mobileMenuOpen">
+    <a class="brand" routerLink="/master" aria-label="Venus RMC Master">
+      <span class="brand-mark">V</span>
+      <span><strong>VENUS</strong><small>RMC PORTAL</small></span>
+    </a>
+
+    <button
+      class="mobile-menu-toggle"
+      type="button"
+      (click)="toggleMobileMenu()"
+      [attr.aria-expanded]="mobileMenuOpen"
+      aria-controls="main-navigation"
+      aria-label="Toggle navigation menu"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <p class="nav-label">WORKSPACE</p>
+    <nav id="main-navigation" aria-label="Main navigation">
+      <div class="nav-group">
+        <a
+          class="nav-link"
+          routerLink="/master"
+          (click)="closeMobileMenu()"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          ariaCurrentWhenActive="page"
+        >
+          <span class="nav-dot"></span>Master
+        </a>
+        <div class="nav-submenu" aria-label="Master records">
+          <a class="nav-sublink" routerLink="/customers" (click)="closeMobileMenu()" routerLinkActive="active" ariaCurrentWhenActive="page">
+            Customers
+          </a>
+          <a class="nav-sublink" routerLink="/sites" (click)="closeMobileMenu()" routerLinkActive="active" ariaCurrentWhenActive="page">
+            Sites
+          </a>
+          <a class="nav-sublink" routerLink="/trucks" (click)="closeMobileMenu()" routerLinkActive="active" ariaCurrentWhenActive="page">
+            Trucks
+          </a>
+          <a class="nav-sublink" routerLink="/drivers" (click)="closeMobileMenu()" routerLinkActive="active" ariaCurrentWhenActive="page">
+            Drivers
+          </a>
+          <a class="nav-sublink" routerLink="/recipes" (click)="closeMobileMenu()" routerLinkActive="active" ariaCurrentWhenActive="page">
+            Recipes
+          </a>
+        </div>
+      </div>
+      <a
+        class="nav-link"
+        routerLink="/batch-report"
+        (click)="closeMobileMenu()"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+      >
+        <span class="nav-dot"></span>Batch Report
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="user-mark">RM</div>
+      <div class="user-label"><strong>Plant Manager</strong><small>Operations</small></div>
+      <button
+        class="logout-button"
+        type="button"
+        (click)="logout()"
+        aria-label="Sign out"
+        title="Sign out"
+      >
+        ↗
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="breadcrumbs">Workspace <span>/</span> Plant operations</div>
+      <button class="mobile-logout" type="button" (click)="logout()">Sign out</button>
+    </header>
+
+    <router-outlet />
+  </main>
+</div>

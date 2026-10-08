@@ -1,0 +1,42 @@
+<section class="data-card" [attr.aria-labelledby]="'record-list-heading'">
+  <div class="card-heading">
+    <div>
+      <h2 id="record-list-heading">{{ title }}</h2>
+      <p>Plant master records</p>
+    </div>
+    @if (!loading && !error) {
+      <span class="record-count">{{ rows.length }} records</span>
+    }
+  </div>
+
+  @if (loading) {
+    <div class="table-message" role="status">Loading {{ title.toLowerCase() }}…</div>
+  } @else if (error) {
+    <div class="table-message error-message" role="alert">{{ error }}</div>
+  } @else if (rows.length === 0) {
+    <div class="table-message">No records found.</div>
+  } @else {
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Sr. No.</th>
+            @for (column of columns(); track column) {
+              <th scope="col">{{ columnLabel(column) }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows; track $index; let index = $index) {
+            <tr>
+              <td>{{ index + 1 }}</td>
+              @for (column of columns(); track column) {
+                <td>{{ formatCell(row[column]) }}</td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

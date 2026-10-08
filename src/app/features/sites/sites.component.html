@@ -1,0 +1,208 @@
+<section class="data-card" aria-labelledby="site-list-heading">
+  <div class="card-heading">
+    <div>
+      <h2 id="site-list-heading">Site Details</h2>
+      <p>Sites registered for your customers</p>
+    </div>
+    <div class="heading-actions">
+      @if (!loading && !error) {
+        <span class="record-count">{{ filteredSites.length }} records</span>
+      }
+      <button
+        class="primary-button"
+        type="button"
+        (click)="openCreateDialog()"
+        [disabled]="loading || customersLoading || customers.length === 0"
+      >
+        Create New
+      </button>
+    </div>
+  </div>
+
+  @if (successMessage) {
+    <div class="success-message" role="status">{{ successMessage }}</div>
+  }
+  @if (customerError) {
+    <div class="table-message error-message" role="alert">{{ customerError }}</div>
+  }
+
+  @if (loading) {
+    <div class="table-message" role="status">Loading site details…</div>
+  } @else if (error) {
+    <div class="table-message error-message" role="alert">{{ error }}</div>
+  } @else if (sites.length === 0) {
+    <div class="table-message">No sites found. Create a site to get started.</div>
+  } @else {
+    <div class="site-filter">
+      <label for="site-customer-filter">Filter by customer</label>
+      <app-searchable-select
+        id="site-customer-filter"
+        ariaLabel="Filter sites by customer"
+        placeholder="All customers"
+        [options]="customerFilterOptions"
+        [ngModel]="siteFilterCustomerId"
+        (ngModelChange)="siteFilterCustomerId = $event; onCustomerFilterChange()"
+        [ngModelOptions]="{ standalone: true }"
+      />
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Sr. No.</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Site Name</th>
+            <th scope="col">Site Address</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (filteredSites.length === 0) {
+            <tr>
+              <td colspan="5">No sites found for this customer.</td>
+            </tr>
+          } @else {
+          @for (site of pagedSites; track site.sid; let index = $index) {
+            <tr>
+              <td>{{ (page - 1) * pageSize + index + 1 }}</td>
+              <td>{{ customerName(site.cid) }}</td>
+              <td>{{ site.siteName }}</td>
+              <td>{{ site.siteAddress }}</td>
+              <td>
+                <button
+                  class="edit-button"
+                  type="button"
+                  (click)="openEditDialog(site)"
+                  [disabled]="customersLoading || customers.length === 0"
+                  [attr.aria-label]="'Edit ' + site.siteName"
+                >
+                  Edit
+                </button>
+              </td>
+            </tr>
+          }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <span class="pagination-summary">
+        Showing {{ firstVisibleRecord }}–{{ lastVisibleRecord }} of {{ filteredSites.length }}
+      </span>
+      <div class="pagination-controls">
+        <label for="site-page-size">Rows per page</label>
+        <select id="site-page-size" [value]="pageSize" (change)="changePageSize($event)">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+        </select>
+        <button
+          class="page-button"
+          type="button"
+          (click)="page = page - 1"
+          [disabled]="page <= 1"
+          aria-label="Previous page"
+        >
+          Previous
+        </button>
+        <span>Page {{ page }} of {{ pageCount }}</span>
+        <button
+          class="page-button"
+          type="button"
+          (click)="page = page + 1"
+          [disabled]="page >= pageCount"
+          aria-label="Next page"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  }
+</section>
+
+@if (modalOpen) {
+  <div class="modal-backdrop" (click)="closeDialog()" (keydown.escape)="closeDialog()">
+    <section
+      class="site-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="site-dialog-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow">{{ editingSite ? 'UPDATE RECORD' : 'NEW RECORD' }}</p>
+          <h2 id="site-dialog-title">{{ editingSite ? 'Update Site' : 'Create New Site' }}</h2>
+        </div>
+        <button
+          class="close-button"
+          type="button"
+          aria-label="Close dialog"
+          (click)="closeDialog()"
+          [disabled]="saving"
+        >
+          &times;
+        </button>
+      </div>
+
+      <form #siteNgForm="ngForm" (ngSubmit)="saveSite(siteNgForm)">
+        <label for="site-customer">Customer</label>
+        <app-searchable-select
+          id="site-customer"
+          name="cid"
+          ariaLabel="Customer"
+          placeholder="Select a customer"
+          [options]="customerOptions"
+          [(ngModel)]="siteForm.cid"
+          required
+          #customerId="ngModel"
+        />
+        @if (customerId.invalid && customerId.touched) {
+          <span class="field-error">Select a customer first.</span>
+        }
+
+        <label for="site-name">Site Name</label>
+        <input
+          id="site-name"
+          name="siteName"
+          type="text"
+          [(ngModel)]="siteForm.siteName"
+          required
+          maxlength="200"
+          #siteName="ngModel"
+        />
+        @if (siteName.invalid && siteName.touched) {
+          <span class="field-error">Enter a site name.</span>
+        }
+
+        <label for="site-address">Site Address</label>
+        <textarea
+          id="site-address"
+          name="siteAddress"
+          [(ngModel)]="siteForm.siteAddress"
+          required
+          maxlength="500"
+          rows="3"
+          #siteAddress="ngModel"
+        ></textarea>
+        @if (siteAddress.invalid && siteAddress.touched) {
+          <span class="field-error">Enter a site address.</span>
+        }
+
+        @if (saveError) {
+          <div class="form-error" role="alert">{{ saveError }}</div>
+        }
+
+        <div class="dialog-actions">
+          <button class="secondary-button" type="button" (click)="closeDialog()" [disabled]="saving">
+            Cancel
+          </button>
+          <button class="primary-button" type="submit" [disabled]="siteNgForm.invalid || saving">
+            {{ saving ? 'Saving…' : editingSite ? 'Update Site' : 'Create Site' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}

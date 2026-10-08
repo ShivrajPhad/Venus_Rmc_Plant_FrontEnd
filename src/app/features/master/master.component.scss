@@ -1,0 +1,72 @@
+.sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.master-card {
+  min-height: 104px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 18px;
+  border: 1px solid #e6ecee;
+  border-radius: 10px;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+}
+
+.master-card:hover {
+  border-color: #b6d8cf;
+  box-shadow: 0 3px 14px rgb(23 48 67 / 6%);
+}
+
+.card-mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 9px;
+  background: #edf6f3;
+  color: #087a60;
+  font-size: 24px;
+}
+
+.card-copy {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+
+.card-copy strong {
+  color: #253f4e;
+  font-size: 13px;
+}
+
+.card-copy span {
+  color: #84929a;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.card-arrow {
+  margin-left: auto;
+  flex: 0 0 auto;
+  color: #9aabb1;
+  font-size: 17px;
+}
+
+@media (max-width: 480px) {
+  .sections {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .master-card {
+    min-height: 88px;
+    padding: 14px;
+  }
+}
