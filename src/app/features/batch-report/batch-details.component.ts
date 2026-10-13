@@ -8,6 +8,7 @@ import {
 } from '../../core/master-data.models';
 
 export interface BatchDetailsReport {
+  docketNumber: string;
   customer: CustomerDetails;
   site: SiteDetails;
   recipe: RecipeDetails;
@@ -396,13 +397,22 @@ export class BatchDetailsComponent implements OnChanges {
   }
 
   formatDate(value: Date | string): string {
-    return new Date(value).toLocaleDateString();
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return String(value);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = d.toLocaleString('en-US', { month: 'short' });
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
   }
 
   formatTime(value: string): string {
-    return new Date(value).toLocaleTimeString([], {
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return String(value);
+    return d.toLocaleTimeString('en-GB', {
       hour: '2-digit',
       minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
     });
   }
 }

@@ -49,6 +49,21 @@ export const routes: Routes = [
             (module) => module.BatchReportComponent,
           ),
       },
+      {
+        path: 'report-list',
+        loadComponent: () =>
+          import('./features/report-list/report-list.component').then(
+            (module) => module.ReportListComponent,
+          ),
+        children: [
+          {
+            path: 'DownloadReport',
+            loadComponent: () =>
+              import('./features/download-report/download-report.component').then(
+                (module) => module.DownloadReportComponent,
+              ),
+          },]
+      },
       { path: '', pathMatch: 'full', redirectTo: 'master' },
     ],
   },

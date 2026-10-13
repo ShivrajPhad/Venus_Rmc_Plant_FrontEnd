@@ -57,6 +57,7 @@ export class BatchReportComponent implements OnInit {
   recipes: RecipeDetails[] = [];
   drivers: DriverDetails[] = [];
   trucks: TruckDetails[] = [];
+  docketNo = '800';
   customerId: number | null = null;
   siteId: number | null = null;
   recipeId: number | null = null;
@@ -227,6 +228,7 @@ export class BatchReportComponent implements OnInit {
     this.formError = '';
     this.saveMessage = '';
     this.report = {
+      docketNumber: this.docketNo.trim() || '800',
       customer,
       site,
       recipe,
@@ -251,6 +253,7 @@ export class BatchReportComponent implements OnInit {
       loadQuantity: null,
       batchSize: null,
     });
+    this.docketNo = '800';
     this.customerId = null;
     this.siteId = null;
     this.recipeId = null;

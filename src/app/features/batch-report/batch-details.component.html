@@ -17,7 +17,7 @@
   <section class="docket-fields" aria-label="Selected docket details">
     <div class="docket-row primary-details">
       <div class="docket-pair-group">
-        <span class="docket-pair"><b>Docket No:</b><span>456987</span></span>
+        <span class="docket-pair"><b>Docket No:</b><span>{{ report.docketNumber }}</span></span>
         <span class="docket-pair">
           <b>&nbsp;</b><span>{{ formatDate(report.generatedAt) }}</span>
         </span>
@@ -71,7 +71,7 @@
       <tr>
         <th scope="col">Recipe</th>
         <th scope="col">TH Volume</th>
-        <th scope="col">Order</th>
+        <th scope="col">Oder</th>
         <th scope="col">Delivered/Ordered</th>
         <th scope="col">Report Date</th>
         <th scope="col">Batch Count</th>
@@ -149,7 +149,7 @@
       </colgroup>
       <tbody>
         <tr>
-          <th colspan="2">Moisture (%)</th>
+          <th colspan="2">Mosture (%)</th>
           @for (column of summaryColumns; track column.id) {
             <td>
               @let moisture = getMoisturePercent(column);
@@ -160,7 +160,7 @@
           }
         </tr>
         <tr>
-          <th colspan="2">Moisture (Kg)</th>
+          <th colspan="2">Mosture (Kg)</th>
           @for (column of summaryColumns; track column.id) {
             <td>
               @let moisture = getMoistureKg(column);
@@ -212,11 +212,18 @@
         <b>Cummulative Actual Total :</b><strong>{{ formatNumber(cumulativeTotal) }}</strong>
       </p>
       <p>
+        <b>Cummulative Set Total :</b><strong>{{ formatNumber(targetTotal.total) }}</strong>
+      </p>
+      <p>
         <b>Total Cycle :</b><strong>{{ formatNumber(batchCount, 0) }}</strong>
       </p>
-      <p><b>Cycle Status :</b><strong>Recipe Calculated</strong></p>
+      <p class="cycle-status"><b>Cycle Status :</b><strong>Cycle Complete</strong></p>
     </div>
     <div class="production-summary">
+      <p>
+        <b>Actual Production Qty:</b>
+        <strong>{{ formatNumber(report.loadQuantity, 2) }} M³</strong>
+      </p>
       <p>
         <b>Production Qty :</b>
         <strong>{{ formatNumber(report.loadQuantity, 2) }} M³</strong>

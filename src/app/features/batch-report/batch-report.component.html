@@ -135,6 +135,18 @@
           required
         />
       </div>
+
+      <div class="field">
+        <label for="docket-no">Docket No</label>
+        <input
+          id="docket-no"
+          name="docketNo"
+          type="text"
+          placeholder="e.g. 800"
+          [(ngModel)]="docketNo"
+          (ngModelChange)="invalidateReport()"
+        />
+      </div>
     </div>
 
     <fieldset class="column-config">

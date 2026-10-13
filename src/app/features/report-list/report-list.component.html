@@ -1,0 +1,194 @@
+<section class="page-heading">
+  <div>
+    <p class="section-kicker">DOCKET MANAGEMENT</p>
+    <h1>Report List</h1>
+    <p class="page-description">Search a docket to review, edit, or download its report.</p>
+  </div>
+</section>
+
+<section class="report-card search-card" aria-labelledby="search-title">
+  <h2 id="search-title">Find a docket report</h2>
+  <form class="search-form" (ngSubmit)="search()">
+    <label for="docket-number">Docket number</label>
+    <div class="search-controls">
+      <input
+        id="docket-number"
+        name="docketNo"
+        type="search"
+        [(ngModel)]="docketNo"
+        placeholder="Enter docket number"
+        required
+      />
+      <button class="button button-primary" type="submit" [disabled]="loading || !docketNo.trim()">
+        {{ loading ? 'Searching…' : 'Search' }}
+      </button>
+    </div>
+  </form>
+
+  @if (error) {
+    <p class="message error-message" role="alert">{{ error }}</p>
+  } @else if (loading) {
+    <p class="message loading-message" role="status">Loading docket details…</p>
+  } @else if (searched && dockets.length === 0) {
+    <p class="message" role="status">No docket reports found for this docket number.</p>
+  }
+</section>
+
+@if (dockets.length) {
+  <section class="report-card list-card" aria-labelledby="list-title">
+    <div class="card-heading">
+      <div>
+        <p class="section-kicker">SEARCH RESULTS</p>
+        <h2 id="list-title">Docket details</h2>
+      </div>
+      <span class="record-count"
+        >{{ dockets.length }} report{{ dockets.length === 1 ? '' : 's' }}</span
+      >
+    </div>
+
+    <div class="table-scroll">
+      <table class="docket-list">
+        <thead>
+          <tr>
+            <th scope="col">Docket No.</th>
+            <th scope="col">Date</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Site</th>
+            <th scope="col">Recipe</th>
+            <th scope="col">Truck</th>
+            <th scope="col">Driver</th>
+            <th scope="col">Delivered</th>
+            <th scope="col">Batches</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (docket of dockets; track docket.dockID) {
+            <tr>
+              <td>{{ docket.docketNo || '—' }}</td>
+              <td>{{ formatDate(docket.docketDate) }}</td>
+              <td>{{ docket.customerName || '—' }}</td>
+              <td>{{ docket.siteName || '—' }}</td>
+              <td>{{ docket.recipeName || '—' }}</td>
+              <td>{{ docket.truckNumber || '—' }}</td>
+              <td>{{ docket.driverName || '—' }}</td>
+              <td>{{ docket.deliveredQuantity ?? '—' }}</td>
+              <td>{{ docket.batchCount ?? docket.batchDetails?.length ?? '—' }}</td>
+              <td>
+                <div class="row-actions">
+                  <button
+                    class="button button-secondary"
+                    type="button"
+                    (click)="OpenReport(docket)"
+                    [disabled]="downloading"
+                  >
+                    Open Report
+                  </button>
+                  <button class="button button-primary" type="button" (click)="edit(docket)">
+                    Edit report
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}
+
+@if (message) {
+  <p class="message success-message" role="status">{{ message }}</p>
+}
+
+@if (editing && editedDocket; as docket) {
+  <section class="report-card editor-card" aria-labelledby="edit-title">
+    <div class="card-heading">
+      <div>
+        <p class="section-kicker">EDIT REPORT</p>
+        <h2 id="edit-title">Docket {{ docket.docketNo }}</h2>
+      </div>
+      @if (selectedDocket) {
+        <div class="related-details">
+          <span>{{ selectedDocket.customerName || 'Customer —' }}</span>
+          <span>{{ selectedDocket.siteName || 'Site —' }}</span>
+          <span>{{ selectedDocket.recipeName || 'Recipe —' }}</span>
+          <span>{{ selectedDocket.truckNumber || 'Truck —' }}</span>
+          <span>{{ selectedDocket.driverName || 'Driver —' }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="editor-grid">
+      @for (field of docketFields; track field.key) {
+        <label class="field">
+          <span>{{ field.label }}</span>
+          <input
+            [type]="field.type"
+            [step]="field.type === 'number' ? 'any' : null"
+            [ngModel]="docket[field.key]"
+            (ngModelChange)="updateDocketField(field, $event)"
+            [name]="'docket-' + field.key"
+          />
+        </label>
+      }
+    </div>
+
+    <div class="batch-heading">
+      <div>
+        <p class="section-kicker">BATCH-WISE DETAILS</p>
+        <h3>Batch details ({{ docket.batchDetails?.length ?? 0 }})</h3>
+      </div>
+    </div>
+    @if (docket.batchDetails?.length) {
+      <div class="table-scroll batch-editor-scroll">
+        <table class="batch-editor">
+          <thead>
+            <tr>
+              @for (field of batchFields; track field.key) {
+                <th scope="col">{{ field.label }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (batch of docket.batchDetails; track $index; let row = $index) {
+              <tr>
+                @for (field of batchFields; track field.key) {
+                  <td>
+                    <input
+                      type="number"
+                      step="any"
+                      [ngModel]="batch[field.key]"
+                      (ngModelChange)="updateBatchField(batch, field.key, $event)"
+                      [name]="'batch-' + row + '-' + field.key"
+                      [attr.aria-label]="'Batch ' + (row + 1) + ' ' + field.label"
+                    />
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="message">This docket has no batch details.</p>
+    }
+
+    @if (error) {
+      <p class="message error-message" role="alert">{{ error }}</p>
+    }
+    <div class="form-actions">
+      <button class="button button-primary" type="button" (click)="save()" [disabled]="saving">
+        {{ saving ? 'Saving…' : 'Save changes' }}
+      </button>
+      <button
+        class="button button-secondary"
+        type="button"
+        (click)="cancelEdit()"
+        [disabled]="saving"
+      >
+        Cancel
+      </button>
+    </div>
+  </section>
+}

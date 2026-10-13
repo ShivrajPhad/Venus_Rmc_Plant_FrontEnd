@@ -6,6 +6,7 @@ import {
 } from './batch-details.component';
 
 const report: BatchDetailsReport = {
+  docketNumber: '456987',
   customer: { cid: 1, customerName: 'Customer', customerAddress: 'Address' },
   site: { sid: 1, cid: 1, siteName: 'Site', siteAddress: 'Address' },
   recipe: {

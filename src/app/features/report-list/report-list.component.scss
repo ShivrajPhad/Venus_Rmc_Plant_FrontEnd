@@ -1,0 +1,289 @@
+:host {
+  display: block;
+  padding-top: 27px;
+  color: #253f4e;
+}
+
+.page-heading {
+  margin-bottom: 21px;
+}
+
+.page-heading h1 {
+  margin: 6px 0;
+  color: #183345;
+  font-size: 24px;
+}
+
+.section-kicker {
+  margin: 0;
+  color: #087a60;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+}
+
+.page-description,
+.card-heading > div > p:last-child {
+  margin: 0;
+  color: #84929a;
+  font-size: 12px;
+}
+
+.report-card {
+  margin-bottom: 18px;
+  padding: 22px;
+  border: 1px solid #e6ecee;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.search-card h2,
+.card-heading h2 {
+  margin: 6px 0 16px;
+  color: #253f4e;
+  font-size: 17px;
+}
+
+.search-form {
+  display: grid;
+  max-width: 600px;
+  gap: 8px;
+}
+
+.search-form > label,
+.field > span {
+  color: #405763;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.search-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.search-controls input,
+.field input,
+.batch-editor input {
+  min-width: 0;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid #dce5e8;
+  border-radius: 6px;
+  outline: none;
+  background: #fff;
+  color: #253f4e;
+  font: inherit;
+  font-size: 12px;
+}
+
+.search-controls input {
+  flex: 1;
+}
+
+.search-controls input:focus,
+.field input:focus,
+.batch-editor input:focus {
+  border-color: #087a60;
+  box-shadow: 0 0 0 3px rgb(8 122 96 / 10%);
+}
+
+.button {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.button-primary {
+  background: #087a60;
+  color: #fff;
+}
+
+.button-primary:hover:not(:disabled) {
+  background: #066b54;
+}
+
+.button-secondary {
+  border-color: #dce5e8;
+  background: #fff;
+  color: #526771;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.message {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #f3f6f7;
+  color: #526771;
+  font-size: 12px;
+}
+
+.error-message {
+  background: #fff3f0;
+  color: #a23d2a;
+}
+
+.loading-message {
+  background: #f1f7f5;
+  color: #087a60;
+}
+
+.success-message {
+  margin: 0 0 18px;
+  background: #eff8f4;
+  color: #087a60;
+}
+
+.card-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.card-heading h2 {
+  margin-bottom: 0;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 10px 9px;
+  border-bottom: 1px solid #e8edef;
+  vertical-align: middle;
+}
+
+th {
+  background: #f5f8f8;
+  color: #526771;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+td {
+  color: #334b58;
+}
+
+.row-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.row-actions .button {
+  min-height: 32px;
+  padding: 0 9px;
+}
+
+.related-details {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.related-details span {
+  padding: 6px 8px;
+  border-radius: 5px;
+  background: #f1f7f5;
+  color: #526771;
+  font-size: 10px;
+}
+
+.editor-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+}
+
+.field input {
+  width: 100%;
+}
+
+.batch-heading {
+  margin: 25px 0 13px;
+}
+
+.batch-heading h3 {
+  margin: 5px 0 0;
+  font-size: 15px;
+}
+
+.batch-editor {
+  min-width: 1160px;
+}
+
+.batch-editor td {
+  min-width: 100px;
+  padding: 5px;
+}
+
+.batch-editor input {
+  width: 100%;
+  height: 34px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 9px;
+  margin-top: 20px;
+  padding-top: 17px;
+  border-top: 1px solid #edf0f2;
+}
+
+@media (max-width: 900px) {
+  .editor-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  :host {
+    padding-top: 20px;
+  }
+
+  .report-card {
+    padding: 16px;
+  }
+
+  .editor-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .card-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .row-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

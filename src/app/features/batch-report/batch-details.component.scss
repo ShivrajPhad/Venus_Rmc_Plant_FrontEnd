@@ -252,6 +252,11 @@ td {
   font-size: 12px;
 }
 
+.production-summary p.cycle-status {
+  justify-content: flex-start;
+  gap: 6px;
+}
+
 .signatures {
   display: grid;
   grid-template-columns: 1fr 1fr;
