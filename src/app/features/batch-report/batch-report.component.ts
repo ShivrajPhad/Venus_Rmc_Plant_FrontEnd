@@ -1,8 +1,14 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  PLATFORM_ID,
+  ViewChild,
+} from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { firstValueFrom, forkJoin } from 'rxjs';
 import {
   CustomerDetails,
   DriverDetails,
@@ -15,6 +21,8 @@ import {
   BatchDetailsComponent,
   BatchDetailsReport,
 } from './batch-details.component';
+import { BatchReportService } from './batch-report.service';
+import { DocketDetailsSaveRequest } from './batch-report';
 import { CustomerService } from '../customers/customer.service';
 import { DriverService } from '../drivers/driver.service';
 import { RecipeService } from '../recipes/recipe.service';
@@ -37,6 +45,26 @@ function requestError(error: unknown): string {
   return 'Could not load report options.';
 }
 
+function errorMessage(error: unknown, action: string): string {
+  if (error instanceof HttpErrorResponse) {
+    if (error.status === 401) {
+      return `Your session may have expired. Sign in again to ${action}.`;
+    }
+    const serverMessage =
+      error.error?.detail || error.error?.message || error.error?.title;
+    if (serverMessage && typeof serverMessage === 'string') {
+      return `Could not ${action}: ${serverMessage}`;
+    }
+    return error.status
+      ? `Could not ${action} (${error.status}).`
+      : `Could not reach the API to ${action}. Check the service connection.`;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return `Could not ${action}.`;
+}
+
 @Component({
   selector: 'app-batch-report',
   imports: [FormsModule, BatchDetailsComponent, SearchableSelectComponent],
@@ -44,11 +72,14 @@ function requestError(error: unknown): string {
   styleUrl: './batch-report.component.scss',
 })
 export class BatchReportComponent implements OnInit {
+  @ViewChild(BatchDetailsComponent) batchDetailsComponent?: BatchDetailsComponent;
+
   private readonly customersApi = inject(CustomerService);
   private readonly sitesApi = inject(SiteService);
   private readonly recipesApi = inject(RecipeService);
   private readonly driversApi = inject(DriverService);
   private readonly trucksApi = inject(TruckService);
+  private readonly batchReportApi = inject(BatchReportService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly document = inject(DOCUMENT);
 
@@ -67,9 +98,11 @@ export class BatchReportComponent implements OnInit {
   loadQuantity: number | null = null;
   batchSize: number | null = null;
   loading = true;
+  saving = false;
   dataError = '';
   formError = '';
   saveMessage = '';
+  saveError = '';
   report: BatchDetailsReport | null = null;
   reportColumns = BATCH_MATERIAL_COLUMNS.map((column) => ({ ...column, selected: true }));
 
@@ -166,6 +199,7 @@ export class BatchReportComponent implements OnInit {
     this.report = null;
     this.formError = '';
     this.saveMessage = '';
+    this.saveError = '';
   }
 
   generate(form: NgForm): void {
@@ -227,6 +261,7 @@ export class BatchReportComponent implements OnInit {
 
     this.formError = '';
     this.saveMessage = '';
+    this.saveError = '';
     this.report = {
       docketNumber: this.docketNo.trim() || '800',
       customer,
@@ -265,6 +300,76 @@ export class BatchReportComponent implements OnInit {
     this.report = null;
     this.formError = '';
     this.saveMessage = '';
+    this.saveError = '';
+  }
+
+  private buildDocketSaveRequest(report: BatchDetailsReport): DocketDetailsSaveRequest {
+    if (this.batchDetailsComponent) {
+      return this.batchDetailsComponent.toSaveRequest();
+    }
+
+    const count = Math.ceil(report.loadQuantity / report.batchSize);
+    const reportDate =
+      report.generatedAt instanceof Date
+        ? report.generatedAt.toISOString()
+        : new Date(report.generatedAt).toISOString();
+
+    return {
+      dockID: 0,
+      docketNo: report.docketNumber || this.docketNo.trim() || '800',
+      docketDate: reportDate,
+      cid: report.customer?.cid ?? null,
+      sid: report.site?.sid ?? null,
+      rid: report.recipe?.rid ?? null,
+      trid: report.truck?.trid ?? null,
+      drid: report.driver?.drid ?? null,
+      startTime: report.startTime || null,
+      endTime: reportDate,
+      batchCount: count,
+      batchSize: report.batchSize,
+      orderQuantity: report.loadQuantity,
+      deliveredQuantity: report.loadQuantity,
+      thVolume: null,
+      reportDate: reportDate,
+      caTotal: null,
+      productionQuantity: report.loadQuantity,
+      totalCycle: count,
+      cycleStatus: 'Cycle Complete',
+      wcRatio: null,
+      batchDetails: [],
+    };
+  }
+
+  async saveDocketDetails(): Promise<void> {
+    if (!this.report || this.saving || !isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    this.saving = true;
+    this.saveError = '';
+    this.saveMessage = '';
+
+    const payload = this.buildDocketSaveRequest(this.report);
+
+    try {
+      const result = await firstValueFrom(this.batchReportApi.saveDocketDetails(payload));
+      const savedDocketNo = result?.docketNo || payload.docketNo;
+      if (savedDocketNo) {
+        this.docketNo = savedDocketNo;
+        if (this.report) {
+          this.report.docketNumber = savedDocketNo;
+        }
+      }
+      this.saveMessage = `Docket ${savedDocketNo ?? ''} details saved successfully.`;
+    } catch (error) {
+      this.saveError = errorMessage(error, 'save docket details');
+    } finally {
+      this.saving = false;
+    }
+  }
+
+  SaveDocketDetails(): Promise<void> {
+    return this.saveDocketDetails();
   }
 
   saveReport(): void {

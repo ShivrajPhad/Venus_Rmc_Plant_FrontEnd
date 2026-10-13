@@ -76,11 +76,11 @@
               <td>{{ docket.batchCount ?? docket.batchDetails?.length ?? '—' }}</td>
               <td>
                 <div class="row-actions">
+                  
                   <button
                     class="button button-secondary"
                     type="button"
-                    (click)="OpenReport(docket)"
-                    [disabled]="downloading"
+                    (click)="openReport(docket)"
                   >
                     Open Report
                   </button>

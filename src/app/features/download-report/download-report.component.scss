@@ -351,4 +351,22 @@ td {
     break-inside: avoid;
     page-break-inside: avoid;
   }
+
+  .no-print {
+    display: none !important;
+  }
 }
+
+.report-actions-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.no-report-card {
+  padding: 24px;
+  background: #fff;
+  border-radius: 6px;
+  text-align: center;
+}
+

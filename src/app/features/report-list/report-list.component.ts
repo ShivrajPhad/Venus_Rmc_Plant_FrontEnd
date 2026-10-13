@@ -12,6 +12,10 @@ import {
 } from '../batch-report/batch-report';
 import { BatchReportService } from '../batch-report/batch-report.service';
 import { Router } from '@angular/router';
+import {
+  BatchDetailsReport,
+  BatchMaterialColumnId,
+} from '../download-report/download-report.component';
 
 type DocketFieldKey = Exclude<keyof DocketDetailsSaveRequest, 'batchDetails'>;
 type BatchFieldKey = keyof BatchDetailSaveRequest;
@@ -200,10 +204,130 @@ export class ReportListComponent {
   }
   constructor(private router: Router) {}
  
-async OpenReport(docket: DocketReportDetails): Promise<void> {
- this.router.navigate(['/DownloadReport']);
+  async openReport(report: any): Promise<void> {
+    const rawBatches: BatchDetailSaveRequest[] =
+      report.batchDetails ?? report.Batchdetails ?? report.batchdetails ?? [];
 
-}
+    const materialColumnMap: {
+      key: keyof BatchDetailSaveRequest;
+      id: BatchMaterialColumnId;
+    }[] = [
+      { key: 'tenMM', id: 'tenMM' },
+      { key: 'csandOne', id: 'cSandOne' },
+      { key: 'csandTwo', id: 'cSandTwo' },
+      { key: 'twentyMM', id: 'twentyMM' },
+      { key: 'cement', id: 'cement' },
+      { key: 'gbbs', id: 'gbbs' },
+      { key: 'flash', id: 'flash' },
+      { key: 'water', id: 'water' },
+      { key: 'addiOne', id: 'addiOne' },
+    ];
+
+    const activeColumns = materialColumnMap
+      .filter((m) =>
+        rawBatches.some((b: any) => {
+          const val = b[m.key] ?? b[m.id];
+          return val !== null && val !== undefined && Number(val) > 0;
+        }),
+      )
+      .map((m) => m.id);
+
+    const visibleColumns: BatchMaterialColumnId[] =
+      activeColumns.length > 0
+        ? [...activeColumns, 'total']
+        : [
+            'tenMM',
+            'cSandOne',
+            'cSandTwo',
+            'twentyMM',
+            'cement',
+            'gbbs',
+            'flash',
+            'water',
+            'addiOne',
+            'total',
+          ];
+
+    let recipeDetails: RecipeDetails | undefined;
+    if (report.rid) {
+      try {
+        const recipes = await firstValueFrom(this.recipesApi.getDetails());
+        recipeDetails = recipes.find((item) => item.rid === report.rid);
+      } catch {
+        // Recipe lookup failed; use fallback values
+      }
+    }
+
+    const recipe: RecipeDetails = recipeDetails ?? {
+      rid: report.rid ?? 0,
+      cid: report.cid ?? 0,
+      recipeName: report.recipeName ?? '',
+      recipeCode: report.recipeCode ?? report.recipeName ?? '',
+      tenMM: report.tenMM ?? 0,
+      cSandOne: report.cSandOne ?? report.csandOne ?? 0,
+      cSandTwo: report.cSandTwo ?? report.csandTwo ?? 0,
+      twentyMM: report.twentyMM ?? 0,
+      cement: report.cement ?? 0,
+      gbbs: report.gbbs ?? 0,
+      flash: report.flash ?? 0,
+      water: report.water ?? 0,
+      addiOne: report.addiOne ?? 0,
+    };
+
+    const mappedReport: BatchDetailsReport = {
+      docketNumber: report.docketNo ?? '',
+      customer: {
+        cid: report.cid ?? 0,
+        customerName: report.customerName ?? '',
+        customerAddress: report.customerAddress ?? '',
+      },
+      site: {
+        sid: report.sid ?? 0,
+        cid: report.cid ?? 0,
+        siteName: report.siteName ?? '',
+        siteAddress: report.siteAddress ?? '',
+      },
+      recipe,
+      driver: {
+        drid: report.drid ?? 0,
+        driverName: report.driverName ?? '',
+        driverMobileNo: report.driverMobileNo ?? '',
+      },
+      truck: {
+        trid: report.trid ?? 0,
+        truckNumber: report.truckNumber ?? '',
+      },
+      startTime: report.startTime ? String(report.startTime) : '',
+      loadQuantity: Number(
+        report.deliveredQuantity ??
+          report.productionQuantity ??
+          report.orderQuantity ??
+          0,
+      ),
+      batchSize: Number(report.batchSize ?? 0),
+      generatedAt: report.reportDate
+        ? new Date(report.reportDate)
+        : report.docketDate
+          ? new Date(report.docketDate)
+          : new Date(),
+      visibleColumns,
+      batchDetails: rawBatches,
+      wcRatio: report.wcRatio,
+      deliveredQuantity: report.deliveredQuantity,
+      orderQuantity: report.orderQuantity,
+      thVolume: report.thVolume,
+      batchCount: report.batchCount,
+      productionQuantity: report.productionQuantity,
+      caTotal: report.caTotal,
+      totalCycle: report.totalCycle,
+      cycleStatus: report.cycleStatus,
+      endTime: report.endTime,
+    };
+
+    this.router.navigate(['/download-report'], {
+      state: { report: mappedReport },
+    });
+  }
   async downloadPdf(docket: DocketReportDetails): Promise<void> {
     if (!isPlatformBrowser(this.platformId) || this.downloading) {
       return;

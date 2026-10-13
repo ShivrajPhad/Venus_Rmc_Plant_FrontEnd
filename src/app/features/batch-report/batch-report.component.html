@@ -200,7 +200,15 @@
     <app-batch-details [report]="generatedReport" />
 
     <div class="save-actions">
-      <button class="button button-primary" type="button" (click)="printReport()">
+      <button
+        class="button button-primary"
+        type="button"
+        (click)="saveDocketDetails()"
+        [disabled]="saving"
+      >
+        {{ saving ? 'Saving…' : 'Save Docket Details' }}
+      </button>
+      <button class="button button-secondary" type="button" (click)="printReport()">
         Print / Save as PDF
       </button>
       <button class="button button-secondary" type="button" (click)="saveReport()">
@@ -208,6 +216,9 @@
       </button>
       @if (saveMessage) {
         <p class="save-message" role="status">{{ saveMessage }}</p>
+      }
+      @if (saveError) {
+        <p class="message error-message" role="alert">{{ saveError }}</p>
       }
     </div>
   </section>

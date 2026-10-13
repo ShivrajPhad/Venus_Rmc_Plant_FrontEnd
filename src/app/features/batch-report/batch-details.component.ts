@@ -6,6 +6,10 @@ import {
   SiteDetails,
   TruckDetails,
 } from '../../core/master-data.models';
+import {
+  BatchDetailSaveRequest,
+  DocketDetailsSaveRequest,
+} from './batch-report';
 
 export interface BatchDetailsReport {
   docketNumber: string;
@@ -21,7 +25,7 @@ export interface BatchDetailsReport {
   visibleColumns: BatchMaterialColumnId[];
 }
 
-interface BatchRow {
+export interface BatchRow {
   number: number;
   volume: number;
   seconds: number;
@@ -414,5 +418,58 @@ export class BatchDetailsComponent implements OnChanges {
       second: '2-digit',
       hour12: false,
     });
+  }
+
+  getBatchDetailSaveRequests(): BatchDetailSaveRequest[] {
+    return this.batchRows.map((row) => ({
+      srNo: row.number,
+      sec: row.seconds,
+      volumeM3: Number(row.volume.toFixed(2)),
+      tenMM: Number(row.tenMM.toFixed(1)),
+      csandOne: Number(row.cSandOne.toFixed(1)),
+      csandTwo: Number(row.cSandTwo.toFixed(1)),
+      twentyMM: Number(row.twentyMM.toFixed(1)),
+      cement: Number(row.cement.toFixed(1)),
+      gbbs: Number(row.gbbs.toFixed(1)),
+      flash: Number(row.flash.toFixed(1)),
+      water: Number(row.water.toFixed(1)),
+      addiOne: Number(row.addiOne.toFixed(2)),
+      totalKg: Number(row.total.toFixed(1)),
+    }));
+  }
+
+  toSaveRequest(): DocketDetailsSaveRequest {
+    const reportDate =
+      this.report.generatedAt instanceof Date
+        ? this.report.generatedAt.toISOString()
+        : new Date(this.report.generatedAt).toISOString();
+
+    return {
+      dockID: 0,
+      docketNo: this.report.docketNumber || '800',
+      docketDate: reportDate,
+      cid: this.report.customer?.cid ?? null,
+      sid: this.report.site?.sid ?? null,
+      rid: this.report.recipe?.rid ?? null,
+      trid: this.report.truck?.trid ?? null,
+      drid: this.report.driver?.drid ?? null,
+      startTime: this.report.startTime || null,
+      endTime: reportDate,
+      batchCount: this.batchCount,
+      batchSize: this.report.batchSize,
+      orderQuantity: this.report.loadQuantity,
+      deliveredQuantity: this.report.loadQuantity,
+      thVolume: this.recipeTotal,
+      reportDate: reportDate,
+      caTotal: Number(this.cumulativeTotal.toFixed(1)),
+      productionQuantity: this.report.loadQuantity,
+      totalCycle: this.batchCount,
+      cycleStatus: 'Cycle Complete',
+      wcRatio:
+        this.waterCementRatio !== null
+          ? Number(this.waterCementRatio.toFixed(2))
+          : null,
+      batchDetails: this.getBatchDetailSaveRequests(),
+    };
   }
 }

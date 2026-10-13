@@ -54,15 +54,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/report-list/report-list.component').then(
             (module) => module.ReportListComponent,
+          )
+      },
+       {
+        path: 'download-report',
+        loadComponent: () =>
+          import('./features/download-report/download-report.component').then(
+            (module) => module.DownloadReportComponent,
           ),
-        children: [
-          {
-            path: 'DownloadReport',
-            loadComponent: () =>
-              import('./features/download-report/download-report.component').then(
-                (module) => module.DownloadReportComponent,
-              ),
-          },]
       },
       { path: '', pathMatch: 'full', redirectTo: 'master' },
     ],
