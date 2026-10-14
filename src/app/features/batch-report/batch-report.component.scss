@@ -6,7 +6,8 @@
   letter-spacing: 0.14em;
 }
 
-.report-card {
+.report-card,
+.form-card {
   padding: 22px;
   border: 1px solid #e6ecee;
   border-radius: 10px;
@@ -314,5 +315,13 @@ tbody tr:last-child td {
     align-items: flex-start;
     flex-direction: column;
     gap: 4px;
+  }
+}
+
+@media print {
+  .form-card,
+  .preview-heading,
+  .save-actions {
+    display: none !important;
   }
 }

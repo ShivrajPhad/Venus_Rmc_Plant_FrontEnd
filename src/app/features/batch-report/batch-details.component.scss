@@ -5,284 +5,268 @@
 }
 
 .batch-details-paper {
-  width: min(100%, 199mm); 
+  width: min(100%, 198mm);
+  margin: 0 auto;
   background: #fff;
-  line-height: 25px;
+  line-height: 1.25;
 }
 
 .company-heading {
-  display: grid;
-  min-height: 24px;
-  align-content: center;
   background: #b4c9e3;
   text-align: center;
-  font-style: Arial, Helvetica, sans-serif;
-}
+  padding: 4px 2px;
+  border: none;
 
-.company-heading strong {
-  font-size: 20px;
+  strong {
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 }
 
 .report-banner {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  margin: 2px 0 4px;
-}
+  border: none;
 
-.logo-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  align-items: center;
-  min-height: 12mm;
-}
+  .logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3px 6px;
+    min-height: 36px;
+    position: relative;
+    border: none;
 
-.logo-row img {
-  grid-area: 1 / 1;
-  display: block;
-  width: min(38mm, 100%);
-  height: auto;
-  max-height: 9mm;
-  object-fit: contain;
-  object-position: left center;
-}
+    img {
+      height: 26px;
+      width: auto;
+      object-fit: contain;
+    }
 
-.logo-row strong {
-  grid-area: 1 / 1;
-  justify-self: center;
-  width: 60%;
-  padding: 0 4px;
-  font-size: 15px;
-  text-align: center;
-  margin-top: -28px;
-  font-style: Arial, Helvetica, sans-serif;
-}
+    .site-title {
+      position: absolute;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+  }
 
-.report-banner h1 {
-  margin: 0;
-  padding: 4px;
-  background: #b4c9e3;
-  font-size: 14px;
-  text-align: center;
-  font-family: Calibri, Arial, sans-serif;
+  .docket-title-bar {
+    background: #b4c9e3;
+    text-align: center;
+    padding: 3px 2px;
+    border: none;
+
+    h1 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 700;
+    }
+  }
 }
 
 .docket-fields {
-  border-top: 1px solid #222;
-  border-left: 1px solid #222;
-}
+  border: 1px solid #111;
+  border-top: none;
 
-.docket-row {
-  display: grid;
-}
+  .docket-row {
+    display: grid;
+    border-bottom: 1px solid #111;
+    font-size: 10.5px;
 
-.primary-details {
-  grid-template-columns: 1fr 1.45fr 1fr;
-}
+    &:last-child {
+      border-bottom: none;
+    }
+  }
 
-.primary-details > .docket-pair-group {
-  display: flex;
-  gap: 23px;
-}
+  .cell {
+    padding: 2px 5px;
+    border-right: 1px solid #111;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow: hidden;
+    white-space: nowrap;
 
-.primary-details .docket-pair {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  min-width: 0;
-  white-space: nowrap;
-}
+    &:last-child {
+      border-right: none;
+    }
 
-.primary-details .driver {
-  margin-left: 47px;
-}
+    b {
+      font-weight: 700;
+      flex-shrink: 0;
+    }
 
-.primary-details .docket-pair span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
 
-.party-details,
-.address-details {
-  grid-template-columns: 1.2fr 1fr;
-}
+  .primary-details {
+    grid-template-columns: 27.5% 20% 18.5% 17% 17%;
 
-.docket-row > div {
-  display: flex;
-  min-width: 0;
-  min-height: 20px;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 10px;
-  border-right: 1px solid #222;
-  border-bottom: 1px solid #222;
-  font-size: 10px;
-}
+    .docket-no-cell {
+      justify-content: space-between;
+    }
+  }
 
-.docket-row .customer {
-  font-size: 12px;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-.docket-row .customerborder {
-  font-size: 12px;
-  font-family: Arial, Helvetica, sans-serif;
-  border-bottom:unset;
-}
-
-.docket-row .customerdetails {
-  font-size: 11px;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-.docket-row b {
-  flex: 0 0 auto;
-}
-
-.docket-row span {
-  min-width: 0;
-  overflow-wrap: anywhere;
+  .party-details,
+  .address-details {
+    grid-template-columns: 66% 34%;
+  }
 }
 
 .recipe-summary {
   width: 100%;
-  margin-top: 5px;
-  table-layout: fixed;
   border-collapse: collapse;
+  margin-top: 4px;
+  border: 1px solid #111;
+  table-layout: fixed;
+
+  th,
+  td {
+    border: 1px solid #111;
+    padding: 2px 3px;
+    text-align: center;
+    font-size: 10.5px;
+    font-weight: 700;
+  }
+
+  th {
+    font-size: 9px;
+    border-bottom: none;
+  }
+
+  td {
+    border-top: none;
+  }
 }
 
-.recipe-summary th,
-.recipe-summary td {
-  height: 17px;
-  padding: 2px 4px;
-  border: 1px solid #222;
-  text-align: center;
-  overflow-wrap: anywhere;
-  border-bottom: unset;
-}
-
-.recipe-summary th {
-  font-weight: 700;
-  font-size: 10px;
-}
-
-.recipe-summary td {
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.table-scroll {
+.table-scroll,
+.summary-scroll {
   width: 67.545%;
   margin-top: 4px;
 }
 
-table {
+.summary-scroll {
+  margin-top: 2px;
+}
+
+.batch-table,
+.recipe-totals {
+  width: 100%;
   border-collapse: collapse;
-  font-size: 10px;
-  text-align: center;
+  table-layout: fixed;
+  font-size: 9.5px;
+
+  th,
+  td {
+    border: 1px solid #111;
+    padding: 1.5px 2px;
+    text-align: center;
+  }
 }
 
 .batch-table {
-  width: 100%;
-  table-layout: fixed;
-}
+  thead th {
+    background: #b4c9e3;
+    font-weight: 700;
+  }
 
-.batch-number-column {
-  width: 7.5%;
-}
+  .group-head th {
+    font-size: 10.5px;
+  }
 
-.batch-seconds-column {
-  width: 9.5%;
-}
+  .material-head th {
+    font-size: 8px;
+  }
 
-th,
-td {
-  padding: 3px 2px;
-  border: 1px solid #222;
-  white-space: nowrap;
-}
+  .unit-head th {
+    font-size: 8.5px;
+  }
 
-.batch-table thead th {
-  background: #b4c9e3;
-}
-
-.batch-table .group-head th {
-  font-size: 14px;
-}
-
-.batch-table .material-head.small-head th {
-  font-size: 8px;
-}
-
-.summary-scroll {
-  width: 67.545%;
-  margin-top: 3px;
+  tbody td {
+    font-weight: 700;
+    white-space: nowrap;
+  }
 }
 
 .recipe-totals {
-  margin: 0;
-  table-layout: fixed;
-}
+  th {
+    text-align: left;
+    padding-left: 4px;
+    font-weight: 700;
+  }
 
-.recipe-totals th,
-.recipe-totals td {
-  padding: 3px 2px;
-  font-size: 12px;
+  .summary-total-row th,
+  .summary-total-row td {
+    font-weight: 700;
+  }
 }
 
 .report-totals {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-  width: 90%;
-  margin: 12px 2% 0;
-}
-
-.production-summary {
-  display: grid;
-  align-content: start;
-  gap: 2px;
-}
-
-.production-summary p {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  margin: 0;
-  padding: 3px 0;
-  font-size: 12px;
-}
+  width: 92%;
+  margin: 12px 0 0 20px;
+  font-size: 11px;
 
-.production-summary p.cycle-status {
-  justify-content: flex-start;
-  gap: 6px;
+  .production-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    p {
+      margin: 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+
+      b,
+      strong {
+        font-weight: 700;
+      }
+    }
+
+    p.cycle-status {
+      justify-content: flex-start;
+      gap: 6px;
+    }
+  }
 }
 
 .signatures {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10%;
-  margin: 20px 3% 0;
-  font-size: 12px;
-  font-weight: 700;
-}
+  display: flex;
+  justify-content: space-between;
+  width: 92%;
+  margin: 22px 0 10px 20px;
+  font-size: 11px;
 
-.signatures span {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: end;
-  gap: 8px;
-}
+  .sig-block {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    width: 42%;
 
-.signatures i {
-  height: 1px;
-  background: #222;
+    b {
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .sig-line {
+      flex-grow: 1;
+      border-bottom: 1px solid #111;
+      height: 1px;
+    }
+  }
 }
 
 @media (max-width: 700px) {
-  .batch-details-paper {
-    padding: 8px;
-  }
-
   .primary-details {
     grid-template-columns: 1fr;
   }
@@ -290,65 +274,18 @@ td {
   .table-scroll,
   .summary-scroll {
     width: 100%;
-  }
-
-  .table-scroll {
     overflow-x: auto;
   }
 
-  .report-totals {
-    grid-template-columns: 1fr;
-  }
-
-  .dockerno {
-    border-right: none;
-  }
-}
-
-@media print {
-  .batch-details-paper {
-    width: 100%;
-    padding: 0;
-  }
-
-  table {
-    font-size: 6pt;
-    line-height: 9pt;
-  }
-
-  th,
-  td {
-    height: 15.5pt;
-    padding: 1.75pt 1pt;
-    line-height: 9.5pt;
-  }
-
-  .batch-table .material-head th {
-    height: 15.5pt;
-    line-height: 9.5pt;
-  }
-  .batch-table .unit-head th {
-    height: 14.5pt;
-    line-height: 9.5pt;
-  }
-
-  .table-scroll {
-    overflow: visible;
-  }
-
-  .summary-scroll {
-    overflow: visible;
-  }
-
-  .batch-table thead {
-    display: table-header-group;
-  }
-
-  tr,
-  .recipe-totals,
   .report-totals,
   .signatures {
-    break-inside: avoid;
-    page-break-inside: avoid;
+    flex-direction: column;
+    gap: 10px;
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .signatures .sig-block {
+    width: 100%;
   }
 }

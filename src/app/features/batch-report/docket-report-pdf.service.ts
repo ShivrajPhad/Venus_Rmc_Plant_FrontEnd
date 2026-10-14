@@ -89,8 +89,8 @@ export class DocketReportPdfService {
 
     pdf.addImage(logo, 'PNG', margin + 1, 16, 38, 9);
     pdf.setFontSize(9);
-    const siteHeading = [docket.siteName, "docket.siteAddress"].filter(Boolean).join(', ');
-    pdf.text(siteHeading || '—', pageWidth / 2, 21.5, {
+    const siteHeading = [docket.siteName, (docket as any).siteAddress].filter(Boolean).join(',');
+    pdf.text(siteHeading || 'AMANORA PARK,MAHADA', pageWidth / 2, 21.5, {
       align: 'center',
       maxWidth: contentWidth * 0.6,
     });
@@ -100,20 +100,27 @@ export class DocketReportPdfService {
     pdf.setFontSize(8);
     pdf.text('Docket Report', pageWidth / 2, 30.5, { align: 'center' });
 
+    const driverDisplay = docket.driverName ? `(${docket.driverName.replace(/^\(|\)$/g, '').trim()})` : '—';
     const docketInfoRows = [
       [
-        `Docket No: ${docket.docketNo ?? '—'}   ${this.formatDate(docket.docketDate)}`,
-        `Truck ${docket.truckNumber ?? '—'}     Driver ${docket.driverName ?? '—'}`,
-        `Start ${this.formatTime(docket.startTime)}     End ${this.formatTime(docket.endTime)}`,
+        `Docket No: ${docket.docketNo ?? '—'}      ${this.formatDate(docket.docketDate)}`,
+        `Truck ${docket.truckNumber ?? '—'}`,
+        `Driver ${driverDisplay}`,
+        `Start ${this.formatTime(docket.startTime)}`,
+        `End ${this.formatTime(docket.endTime)}`,
       ],
       [
-        `Customer: ${docket.customerName ?? '—'}`,
+        `Customer : ${docket.customerName ?? '—'}`,
         `Site: ${docket.siteName ?? '—'}`,
+        '',
+        '',
         '',
       ],
       [
-        `C.Address: ${ '—'}`,
-        `S.Address: ${ '—'}`,
+        `C.Address : ${(docket as any).customerAddress ?? '—'}`,
+        `S.Address: ${(docket as any).siteAddress ?? '—'}`,
+        '',
+        '',
         '',
       ],
     ];
@@ -124,18 +131,21 @@ export class DocketReportPdfService {
       theme: 'grid',
       styles: { font: 'helvetica', fontSize: 6.5, cellPadding: 1.6 },
       columnStyles: {
-        0: { cellWidth: contentWidth * 0.32, fontStyle: 'bold' },
-        1: { cellWidth: contentWidth * 0.42, fontStyle: 'bold' },
-        2: { cellWidth: contentWidth * 0.26, fontStyle: 'bold' },
+        0: { cellWidth: contentWidth * 0.275, fontStyle: 'bold' },
+        1: { cellWidth: contentWidth * 0.2, fontStyle: 'bold' },
+        2: { cellWidth: contentWidth * 0.185, fontStyle: 'bold' },
+        3: { cellWidth: contentWidth * 0.17, fontStyle: 'bold' },
+        4: { cellWidth: contentWidth * 0.17, fontStyle: 'bold' },
       },
       tableLineWidth: 0.15,
     });
 
+    const deliveredStr = `${this.formatNumber(Number(docket.deliveredQuantity ?? 0), 1)} / ${docket.orderQuantity ? this.formatNumber(Number(docket.orderQuantity), 1) : '—'}`;
     const recipeSummary = [
       [
         'Recipe',
         'TH Volume',
-        'Order',
+        'Oder',
         'Delivered/Ordered',
         'Report Date',
         'Batch Count',
@@ -145,7 +155,7 @@ export class DocketReportPdfService {
         docket.recipeName ?? '—',
         `${this.formatNumber(recipeValues.reduce((sum, value) => sum + value, 0))} Kg/M³`,
         docket.customerName ?? '—',
-        `${this.formatNumber(Number(docket.deliveredQuantity ?? 0), 2)} / —`,
+        deliveredStr,
         this.formatDate(docket.reportDate),
         this.formatNumber(Number(docket.batchCount ?? docket.batchDetails?.length ?? 0), 0),
         this.formatNumber(Number(docket.batchSize ?? 0), 2),
@@ -255,14 +265,17 @@ export class DocketReportPdfService {
       batchRows.reduce((sum, batch) => sum + Number(batch[key] ?? 0), 0);
     const summaryRows = [
       [
-        'Moisture (%)',
+        'Mosture (%)',
         ...summaryColumns.map((column) =>
           this.isMoistureColumn(column.id) ? '0.00' : '',
         ),
       ],
       [
-        'Moisture (Kg)',
+        'Mosture (Kg)',
         ...summaryColumns.map((column) => {
+          if (column.id === 'water') {
+            return '0.00';
+          }
           const material = REPORT_MATERIALS.find((item) => item.id === column.id);
           return this.isMoistureColumn(column.id) && material
             ? this.formatNumber((actual(material.batchKey) * 0) / 100, material.precision)
@@ -347,20 +360,26 @@ export class DocketReportPdfService {
     const recipeTotal = recipeValues.reduce((sum, value) => sum + value, 0);
     const productionRows = [
       [
-        'Cumulative Actual Total',
+        'Cummulative Actual Total :',
         this.formatNumber(actual('totalKg')),
-        'Production Qty',
+        'Actual Production Qty:',
         `${this.formatNumber(Number(docket.deliveredQuantity ?? 0), 2)} M³`,
       ],
       [
-        'Total Cycle',
+        'Cummulative Set Total :',
+        this.formatNumber(recipeTotal * Number(docket.deliveredQuantity ?? 0)),
+        'Production Qty :',
+        `${this.formatNumber(Number(docket.deliveredQuantity ?? 0), 2)} M³`,
+      ],
+      [
+        'Total Cycle :',
         this.formatNumber(Number(docket.batchCount ?? batchRows.length), 0),
-        'W/C Ratio',
+        'W/C Ratio :',
         docket.wcRatio === null
           ? '—'
           : this.formatNumber(Number(docket.wcRatio), 2),
       ],
-      ['Cycle Status', docket.cycleStatus ?? 'Recipe Calculated', 'TH Volume', `${this.formatNumber(recipeTotal)} Kg/M³`],
+      ['Cycle Status :', docket.cycleStatus ?? 'Cycle Complete', '', ''],
     ];
     autoTable(pdf, {
       startY: endY,

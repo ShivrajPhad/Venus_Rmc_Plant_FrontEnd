@@ -40,6 +40,7 @@ export interface BatchDetailsReport {
   totalCycle?: number | null;
   cycleStatus?: string | null;
   endTime?: string | null;
+  docketDate?: Date | string | null;
 }
 
 export interface BatchRow {
@@ -84,10 +85,10 @@ export interface BatchMaterialColumn {
 }
 
 export const BATCH_MATERIAL_COLUMNS: BatchMaterialColumn[] = [
-  { id: 'tenMM', label: '10MM', group: 'Aggregate (Kg)', precision: 1 },
-  { id: 'cSandOne', label: 'C SAND 1', group: 'Aggregate (Kg)', precision: 1 },
-  { id: 'cSandTwo', label: 'C SAND 2', group: 'Aggregate (Kg)', precision: 1 },
-  { id: 'twentyMM', label: '20MM', group: 'Aggregate (Kg)', precision: 1 },
+  { id: 'tenMM', label: '10MM', group: 'Aggragate (Kg)', precision: 1 },
+  { id: 'cSandOne', label: 'C SAND 1', group: 'Aggragate (Kg)', precision: 1 },
+  { id: 'cSandTwo', label: 'C SAND 2', group: 'Aggragate (Kg)', precision: 1 },
+  { id: 'twentyMM', label: '20MM', group: 'Aggragate (Kg)', precision: 1 },
   { id: 'cement', label: 'CEMENT', group: 'Cement (Kg)', precision: 1 },
   { id: 'gbbs', label: 'GGBS', group: 'Cement (Kg)', precision: 1 },
   { id: 'flash', label: 'FLASH', group: 'Cement (Kg)', precision: 1 },
@@ -401,20 +402,75 @@ export class DownloadReportComponent implements OnInit, OnChanges {
     return row[column.id];
   }
 
+  get siteHeading(): string {
+    const site = this.report?.site;
+    const parts = [site?.siteName, site?.siteAddress].filter(Boolean);
+    return parts.join(',') || 'AMANORA PARK,MAHADA';
+  }
+
+  get endTimeValue(): string {
+    if (this.report?.endTime) {
+      return this.report.endTime;
+    }
+    if (this.report?.startTime) {
+      const start = new Date(this.report.startTime);
+      if (!isNaN(start.getTime())) {
+        const totalSec = this.batchRows.reduce((acc, row) => acc + (row.seconds || 0), 0);
+        return new Date(start.getTime() + totalSec * 1000).toISOString();
+      }
+    }
+    return this.report?.generatedAt ? String(this.report.generatedAt) : '';
+  }
+
+  formatDriver(name: string | null | undefined): string {
+    if (!name) return '—';
+    const trimmed = name.trim();
+    if (trimmed.startsWith('(') && trimmed.endsWith(')')) {
+      return trimmed;
+    }
+    return `(${trimmed})`;
+  }
+
+  formatDeliveredOrdered(): string {
+    const delivered =
+      this.report?.deliveredQuantity ?? this.report?.loadQuantity ?? 0;
+    const deliveredStr = this.formatNumber(delivered, 1);
+    if (
+      this.report?.orderQuantity !== null &&
+      this.report?.orderQuantity !== undefined
+    ) {
+      return `${deliveredStr} / ${this.formatNumber(this.report.orderQuantity, 1)}`;
+    }
+    return `${deliveredStr} / —`;
+  }
+
   getSummaryValue(summary: BatchTotals, column: BatchMaterialColumn): number {
     return summary[column.id];
   }
 
   getMoisturePercent(column: BatchMaterialColumn): number | null {
-    return column.id in this.moisturePercent
-      ? this.moisturePercent[column.id as keyof MoisturePercentages]
-      : null;
+    if (
+      column.id === 'tenMM' ||
+      column.id === 'cSandOne' ||
+      column.id === 'cSandTwo' ||
+      column.id === 'twentyMM'
+    ) {
+      return 0;
+    }
+    return null;
   }
 
   getMoistureKg(column: BatchMaterialColumn): number | null {
-    return column.id in this.moistureKg
-      ? this.moistureKg[column.id as keyof MoistureWeights]
-      : null;
+    if (
+      column.id === 'tenMM' ||
+      column.id === 'cSandOne' ||
+      column.id === 'cSandTwo' ||
+      column.id === 'twentyMM' ||
+      column.id === 'water'
+    ) {
+      return 0;
+    }
+    return null;
   }
 
   get batchCount(): number {
@@ -479,11 +535,13 @@ export class DownloadReportComponent implements OnInit, OnChanges {
     }
     const body = this.document.body;
     body.classList.add('printing-batch-details');
-    try {
-      this.document.defaultView.print();
-    } finally {
+    const cleanup = () => {
       body.classList.remove('printing-batch-details');
-    }
+      this.document.defaultView?.removeEventListener('afterprint', cleanup);
+    };
+    this.document.defaultView.addEventListener('afterprint', cleanup);
+    this.document.defaultView.print();
+    setTimeout(cleanup, 2000);
   }
 
   goBack(): void {
@@ -511,7 +569,12 @@ export class DownloadReportComponent implements OnInit, OnChanges {
   formatTime(value: Date | string | null | undefined): string {
     if (!value) return '—';
     const d = new Date(value);
-    if (isNaN(d.getTime())) return String(value);
+    if (isNaN(d.getTime())) {
+      if (typeof value === 'string' && /^\d{2}:\d{2}(:\d{2})?$/.test(value)) {
+        return value.length === 5 ? `${value}:00` : value;
+      }
+      return String(value);
+    }
     return d.toLocaleTimeString('en-GB', {
       hour: '2-digit',
       minute: '2-digit',

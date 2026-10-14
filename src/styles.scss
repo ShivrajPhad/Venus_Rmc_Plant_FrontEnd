@@ -20,6 +20,42 @@ input {
   font: inherit;
 }
 
+.button {
+  min-height: 38px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.button-primary {
+  background: #087a60;
+  color: #fff;
+
+  &:hover {
+    background: #066b54;
+  }
+}
+
+.button-secondary {
+  border-color: #dce5e8;
+  background: #fff;
+  color: #526771;
+
+  &:hover {
+    background: #f7f9fa;
+  }
+}
+
+.report-actions-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
 .column-config {
   margin: 20px 0 0;
   padding: 14px;
@@ -76,206 +112,243 @@ input {
 
 @media print {
   @page {
-    size: 210mm 280mm;
-    margin: 2mm;
+    size: A4 portrait;
+    margin: 6mm 6mm;
   }
 
-  body.printing-batch-details {
-    background: #fff;
-  }
-
-  body.printing-batch-details * {
-    visibility: hidden !important;
-  }
-
-  body.printing-batch-details :is(app-batch-details, app-download-report),
-  body.printing-batch-details :is(app-batch-details, app-download-report) * {
-    visibility: visible !important;
-  }
-
-  body.printing-batch-details :is(app-batch-details, app-download-report) {
-    position: fixed !important;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    margin: 0;
-  }
-
-  body.printing-batch-details :is(app-batch-details, app-download-report) .batch-details-paper {
+  html,
+  body {
+    margin: 0 !important;
     padding: 0 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    background: #fff !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .company-heading strong {
-    font:
-      700 14.5pt Arial,
-      Helvetica,
-      sans-serif;
+  /* All app chrome, navigation, form cards, actions, and buttons are ALWAYS hidden in print */
+  aside,
+  header.topbar,
+  nav,
+  form,
+  button,
+  .sidebar,
+  .topbar,
+  .mobile-menu-toggle,
+  .mobile-logout,
+  .page-heading,
+  .search-card,
+  .form-card,
+  .editor-card,
+  .list-card,
+  .preview-heading,
+  .save-actions,
+  .report-actions-bar,
+  .row-actions,
+  .form-actions,
+  .column-config,
+  .card-heading,
+  .no-print,
+  .no-report-card,
+  section.form-card,
+  .report-card.form-card {
+    display: none !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .company-heading {
-    min-height: 24pt;
-    line-height: 19.75pt;
+  .master-shell,
+  .main-content,
+  .preview-card {
+    display: block !important;
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .report-banner {
-    margin: 1.5pt 0 3pt;
+  .preview-card > *:not(app-batch-details):not(.batch-details-paper) {
+    display: none !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .logo-row {
-    min-height: 34.685pt;
-    line-height: 12pt;
+  app-batch-details,
+  app-download-report {
+    display: block !important;
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .logo-row img {
-    width: 40mm;
-    height: auto;
-    max-height: 8.5mm;
-    object-fit: contain;
+  .batch-details-paper {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.25 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .report-banner h1 {
-    min-height: 16.25pt;
-    padding: 1pt 4pt;
-    line-height: 12.75pt;
+  .company-heading {
+    display: block !important;
+    background: #b4c9e3 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    padding: 3.5pt 2pt !important;
+    border: none !important;
+    text-align: center !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .docket-row > div {
-    min-height: 13pt;
-    line-height: 11pt;
+  .company-heading strong {
+    font: 700 13pt/1.2 Arial, Helvetica, sans-serif !important;
+    letter-spacing: 0.5px !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .logo-row strong {
-    font:
-      700 10.5pt Arial,
-      Helvetica,
-      sans-serif;
+  .report-banner {
+    border: none !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .report-banner h1 {
-    font:
-      700 12.5pt Arial,
-      Helvetica,
-      sans-serif;
+  .report-banner .logo-row {
+    min-height: 30pt !important;
+    padding: 2pt 4pt !important;
+    border: none !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .docket-row > div {
-    font:
-      8.5pt Arial,
-      Helvetica,
-      sans-serif;
+  .report-banner .logo-row img {
+    height: 22pt !important;
+    width: auto !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .docket-row b {
-    font-weight: 700;
+  .report-banner .logo-row .site-title {
+    font: 700 10.5pt Arial, Helvetica, sans-serif !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .docket-row span {
-    font-size: 8.5pt;
+  .report-banner .docket-title-bar {
+    background: #b4c9e3 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    padding: 2.5pt 2pt !important;
+    border: none !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .recipe-summary th,
-  body.printing-batch-details :is(app-batch-details, app-download-report) .recipe-summary td {
-    font:
-      8.5pt Arial,
-      Helvetica,
-      sans-serif;
+  .report-banner .docket-title-bar h1 {
+    font: 700 11pt Arial, Helvetica, sans-serif !important;
+    margin: 0 !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .recipe-summary th {
-    font-weight: 700;
+  .docket-fields .docket-row {
+    font: 8.5pt/1.2 Arial, Helvetica, sans-serif !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .recipe-summary td {
-    font-weight: 400;
+  .docket-fields .cell {
+    padding: 2pt 4pt !important;
+    min-height: 13pt !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) table {
-    font:
-      8.5pt/9.5pt Arial,
-      Helvetica,
-      sans-serif;
+  .recipe-summary {
+    margin-top: 3pt !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .batch-table .group-head th {
-    height: 19.5pt;
-    font-size: 11.5pt;
-    font-weight: 700;
-    line-height: 10.5pt;
+  .recipe-summary th,
+  .recipe-summary td {
+    font: 700 8.5pt/1.2 Arial, Helvetica, sans-serif !important;
+    padding: 2pt 2pt !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .batch-table .group-head th:first-child {
-    font:
-      700 6.5pt/9.5pt 'Arial Narrow',
-      Arial,
-      sans-serif;
+  .recipe-summary th {
+    font-size: 7.5pt !important;
+    border-bottom: none !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .batch-table .material-head.small-head th {
-    font:
-      700 8px/9.5pt Arial,
-      Helvetica,
-      sans-serif;
+  .recipe-summary td {
+    border-top: none !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .batch-table .material-head:not(.small-head) th {
-    font:
-      700 9pt/9.5pt Arial,
-      Helvetica,
-      sans-serif;
+  .table-scroll {
+    width: 67.545% !important;
+    margin-top: 3pt !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .batch-table .unit-head th {
-    font:
-      700 8.5pt/9.5pt Arial,
-      Helvetica,
-      sans-serif;
+  .batch-table thead th {
+    background: #b4c9e3 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    font: 700 8pt/1.15 Arial, Helvetica, sans-serif !important;
+    padding: 1.5pt 1pt !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .batch-table tbody td {
-    font:
-      8.5pt/9.5pt Arial,
-      Helvetica,
-      sans-serif;
+  .batch-table .group-head th {
+    font-size: 9.5pt !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .recipe-totals th,
-  body.printing-batch-details :is(app-batch-details, app-download-report) .recipe-totals td {
-    font:
-      8.5pt Arial,
-      Helvetica,
-      sans-serif;
+  .batch-table .material-head th {
+    font-size: 7pt !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .recipe-totals td {
-    font-weight: 400;
+  .batch-table .unit-head th {
+    font-size: 7.5pt !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .recipe-totals .summary-total-row th,
-  body.printing-batch-details :is(app-batch-details, app-download-report) .recipe-totals .summary-total-row td {
-    font-weight: 700;
+  .batch-table tbody td {
+    font: 700 8.5pt/1.15 Arial, Helvetica, sans-serif !important;
+    padding: 1.25pt 1pt !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .production-summary p,
-  body.printing-batch-details :is(app-batch-details, app-download-report) .signatures {
-    font:
-      10.5pt Arial,
-      Helvetica,
-      sans-serif;
+  .summary-scroll {
+    width: 67.545% !important;
+    margin-top: 1.5pt !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .production-summary b,
-  body.printing-batch-details :is(app-batch-details, app-download-report) .signatures {
-    font-weight: 700;
+  .recipe-totals th,
+  .recipe-totals td {
+    font: 8.5pt/1.15 Arial, Helvetica, sans-serif !important;
+    padding: 1.25pt 1pt !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .production-summary strong {
-    font-weight: 400;
+  .recipe-totals th {
+    font-weight: 700 !important;
+    padding-left: 3pt !important;
   }
 
-  body.printing-batch-details :is(app-batch-details, app-download-report) .production-summary p.cycle-status {
-    justify-content: flex-start;
-    gap: 6pt;
+  .recipe-totals .summary-total-row th,
+  .recipe-totals .summary-total-row td {
+    font-weight: 700 !important;
+  }
+
+  .report-totals {
+    width: 92% !important;
+    margin: 9pt 0 0 16pt !important;
+    font: 10pt/1.3 Arial, Helvetica, sans-serif !important;
+  }
+
+  .report-totals b,
+  .report-totals strong {
+    font-weight: 700 !important;
+  }
+
+  .signatures {
+    width: 92% !important;
+    margin: 18pt 0 0 16pt !important;
+    font: 700 10pt Arial, Helvetica, sans-serif !important;
+  }
+
+  tr,
+  .docket-fields,
+  .recipe-summary,
+  .batch-table,
+  .recipe-totals,
+  .report-totals,
+  .signatures {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 }

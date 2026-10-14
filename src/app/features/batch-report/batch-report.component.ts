@@ -195,6 +195,21 @@ export class BatchReportComponent implements OnInit {
     this.invalidateReport();
   }
 
+  onRecipeChange(): void {
+    const recipe = this.recipes.find((item) => item.rid === this.recipeId);
+    if (recipe) {
+      this.reportColumns.forEach((col) => {
+        if (col.id === 'total') {
+          col.selected = true;
+        } else {
+          const val = Number((recipe as any)[col.id] ?? 0);
+          col.selected = val > 0;
+        }
+      });
+    }
+    this.invalidateReport();
+  }
+
   invalidateReport(): void {
     this.report = null;
     this.formError = '';
@@ -274,6 +289,8 @@ export class BatchReportComponent implements OnInit {
       batchSize: this.batchSize,
       generatedAt: new Date(),
       visibleColumns,
+      orderQuantity: this.loadQuantity,
+      deliveredQuantity: this.loadQuantity,
     };
   }
 
@@ -396,7 +413,11 @@ export class BatchReportComponent implements OnInit {
     const url = URL.createObjectURL(blob);
     const link = this.document.createElement('a');
     link.href = url;
-    link.download = `batch-report-${this.report.generatedAt.toISOString().slice(0, 10)}.csv`;
+    const reportDate =
+      this.report.generatedAt instanceof Date
+        ? this.report.generatedAt
+        : new Date(this.report.generatedAt);
+    link.download = `batch-report-${reportDate.toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
     this.saveMessage = 'Report saved as a CSV file.';
@@ -408,20 +429,22 @@ export class BatchReportComponent implements OnInit {
     }
 
     const body = this.document.body;
-    body.classList.add('printing-batch-details');
-    try {
-      this.document.defaultView.print();
-    } finally {
-      body.classList.remove('printing-batch-details');
-    }
+    body.classList.add('report-preview-print');
+    const cleanup = () => {
+      body.classList.remove('report-preview-print');
+      this.document.defaultView?.removeEventListener('afterprint', cleanup);
+    };
+    this.document.defaultView.addEventListener('afterprint', cleanup);
+    this.document.defaultView.print();
+    setTimeout(cleanup, 2000);
   }
 
   formatStartTime(value: string): string {
     return new Date(value).toLocaleString();
   }
 
-  formatReportDate(value: Date): string {
-    return value.toLocaleDateString();
+  formatReportDate(value: Date | string): string {
+    return new Date(value).toLocaleDateString();
   }
 
   private csvField(value: string | number): string {

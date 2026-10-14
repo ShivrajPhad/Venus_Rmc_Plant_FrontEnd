@@ -21,8 +21,20 @@ export interface BatchDetailsReport {
   startTime: string;
   loadQuantity: number;
   batchSize: number;
-  generatedAt: Date;
+  generatedAt: Date | string;
   visibleColumns: BatchMaterialColumnId[];
+  docketDate?: Date | string | null;
+  batchDetails?: BatchDetailSaveRequest[];
+  wcRatio?: number | null;
+  deliveredQuantity?: number | null;
+  orderQuantity?: number | null;
+  thVolume?: number | null;
+  batchCount?: number | null;
+  productionQuantity?: number | null;
+  caTotal?: number | null;
+  totalCycle?: number | null;
+  cycleStatus?: string | null;
+  endTime?: string | null;
 }
 
 export interface BatchRow {
@@ -67,10 +79,10 @@ export interface BatchMaterialColumn {
 }
 
 export const BATCH_MATERIAL_COLUMNS: BatchMaterialColumn[] = [
-  { id: 'tenMM', label: '10MM', group: 'Aggregate (Kg)', precision: 1 },
-  { id: 'cSandOne', label: 'C SAND 1', group: 'Aggregate (Kg)', precision: 1 },
-  { id: 'cSandTwo', label: 'C SAND 2', group: 'Aggregate (Kg)', precision: 1 },
-  { id: 'twentyMM', label: '20MM', group: 'Aggregate (Kg)', precision: 1 },
+  { id: 'tenMM', label: '10MM', group: 'Aggragate (Kg)', precision: 1 },
+  { id: 'cSandOne', label: 'C SAND 1', group: 'Aggragate (Kg)', precision: 1 },
+  { id: 'cSandTwo', label: 'C SAND 2', group: 'Aggragate (Kg)', precision: 1 },
+  { id: 'twentyMM', label: '20MM', group: 'Aggragate (Kg)', precision: 1 },
   { id: 'cement', label: 'CEMENT', group: 'Cement (Kg)', precision: 1 },
   { id: 'gbbs', label: 'GGBS', group: 'Cement (Kg)', precision: 1 },
   { id: 'flash', label: 'FLASH', group: 'Cement (Kg)', precision: 1 },
@@ -202,6 +214,48 @@ export class BatchDetailsComponent implements OnChanges {
     );
   }
 
+  get siteHeading(): string {
+    const site = this.report?.site;
+    const parts = [site?.siteName, site?.siteAddress].filter(Boolean);
+    return parts.join(',') || 'AMANORA PARK,MAHADA';
+  }
+
+  get endTimeValue(): string {
+    if (this.report?.endTime) {
+      return this.report.endTime;
+    }
+    if (this.report?.startTime) {
+      const start = new Date(this.report.startTime);
+      if (!isNaN(start.getTime())) {
+        const totalSec = this.batchRows.reduce((acc, row) => acc + (row.seconds || 0), 0);
+        return new Date(start.getTime() + totalSec * 1000).toISOString();
+      }
+    }
+    return this.report?.generatedAt ? String(this.report.generatedAt) : '';
+  }
+
+  formatDriver(name: string | null | undefined): string {
+    if (!name) return '—';
+    const trimmed = name.trim();
+    if (trimmed.startsWith('(') && trimmed.endsWith(')')) {
+      return trimmed;
+    }
+    return `(${trimmed})`;
+  }
+
+  formatDeliveredOrdered(): string {
+    const delivered =
+      this.report?.deliveredQuantity ?? this.report?.loadQuantity ?? 0;
+    const deliveredStr = this.formatNumber(delivered, 1);
+    if (
+      this.report?.orderQuantity !== null &&
+      this.report?.orderQuantity !== undefined
+    ) {
+      return `${deliveredStr} / ${this.formatNumber(this.report.orderQuantity, 1)}`;
+    }
+    return `${deliveredStr} / —`;
+  }
+
   getColumnValue(row: BatchRow, column: BatchMaterialColumn): number {
     return row[column.id];
   }
@@ -211,63 +265,128 @@ export class BatchDetailsComponent implements OnChanges {
   }
 
   getMoisturePercent(column: BatchMaterialColumn): number | null {
-    return column.id in this.moisturePercent
-      ? this.moisturePercent[column.id as keyof MoisturePercentages]
-      : null;
+    if (
+      column.id === 'tenMM' ||
+      column.id === 'cSandOne' ||
+      column.id === 'cSandTwo' ||
+      column.id === 'twentyMM'
+    ) {
+      return 0;
+    }
+    return null;
   }
 
   getMoistureKg(column: BatchMaterialColumn): number | null {
-    return column.id in this.moistureKg
-      ? this.moistureKg[column.id as keyof MoistureWeights]
-      : null;
+    if (
+      column.id === 'tenMM' ||
+      column.id === 'cSandOne' ||
+      column.id === 'cSandTwo' ||
+      column.id === 'twentyMM' ||
+      column.id === 'water'
+    ) {
+      return 0;
+    }
+    return null;
   }
 
   ngOnChanges(): void {
-    const count = this.report.loadQuantity / this.report.batchSize;
-    const rowCount = Math.ceil(count);
-    const volumePerBatch = this.report.loadQuantity / rowCount;
-    const recipe = this.report.recipe;
-    const actualMaterials = {
-      tenMM: this.actualMaterialValues(recipe.tenMM, volumePerBatch, rowCount),
-      cSandOne: this.actualMaterialValues(recipe.cSandOne, volumePerBatch, rowCount),
-      cSandTwo: this.actualMaterialValues(recipe.cSandTwo, volumePerBatch, rowCount),
-      twentyMM: this.actualMaterialValues(recipe.twentyMM, volumePerBatch, rowCount),
-      cement: this.actualMaterialValues(recipe.cement, volumePerBatch, rowCount),
-      gbbs: this.actualMaterialValues(recipe.gbbs, volumePerBatch, rowCount),
-      flash: this.actualMaterialValues(recipe.flash, volumePerBatch, rowCount),
-      water: this.actualMaterialValues(recipe.water, volumePerBatch, rowCount),
-      addiOne: this.actualMaterialValues(recipe.addiOne, volumePerBatch, rowCount),
-    };
+    const rawBatches =
+      this.report.batchDetails ?? (this.report as any).Batchdetails;
 
-    this.batchRows = Array.from({ length: rowCount }, (_, index) => {
-      const volume = volumePerBatch;
-      const row = {
-        number: index + 1,
-        volume,
-        seconds: 55 + ((index * 17 + recipe.rid * 7) % 76),
-        tenMM: actualMaterials.tenMM[index],
-        cSandOne: actualMaterials.cSandOne[index],
-        cSandTwo: actualMaterials.cSandTwo[index],
-        twentyMM: actualMaterials.twentyMM[index],
-        cement: actualMaterials.cement[index],
-        gbbs: actualMaterials.gbbs[index],
-        flash: actualMaterials.flash[index],
-        water: actualMaterials.water[index],
-        addiOne: actualMaterials.addiOne[index],
-        total: 0,
+    if (rawBatches && rawBatches.length > 0) {
+      this.batchRows = (rawBatches as any[]).map((batch: any, index: number) => {
+        const tenMM = Number(batch.tenMM ?? 0);
+        const cSandOne = Number(batch.cSandOne ?? batch.csandOne ?? 0);
+        const cSandTwo = Number(batch.cSandTwo ?? batch.csandTwo ?? 0);
+        const twentyMM = Number(batch.twentyMM ?? 0);
+        const cement = Number(batch.cement ?? 0);
+        const gbbs = Number(batch.gbbs ?? 0);
+        const flash = Number(batch.flash ?? 0);
+        const water = Number(batch.water ?? 0);
+        const addiOne = Number(batch.addiOne ?? 0);
+        const sumMaterials =
+          tenMM +
+          cSandOne +
+          cSandTwo +
+          twentyMM +
+          cement +
+          gbbs +
+          flash +
+          water +
+          addiOne;
+
+        const total =
+          batch.totalKg !== null &&
+          batch.totalKg !== undefined &&
+          Number(batch.totalKg) > 0
+            ? Number(batch.totalKg)
+            : sumMaterials;
+
+        return {
+          number: Number(batch.srNo ?? index + 1),
+          volume: Number(
+            batch.volumeM3 ?? batch.volume ?? this.report.batchSize ?? 0,
+          ),
+          seconds: Number(batch.sec ?? batch.seconds ?? 0),
+          tenMM,
+          cSandOne,
+          cSandTwo,
+          twentyMM,
+          cement,
+          gbbs,
+          flash,
+          water,
+          addiOne,
+          total,
+        };
+      });
+    } else {
+      const count = this.report.loadQuantity / this.report.batchSize;
+      const rowCount = Math.ceil(count);
+      const volumePerBatch = this.report.loadQuantity / rowCount;
+      const recipe = this.report.recipe;
+      const actualMaterials = {
+        tenMM: this.actualMaterialValues(recipe.tenMM, volumePerBatch, rowCount),
+        cSandOne: this.actualMaterialValues(recipe.cSandOne, volumePerBatch, rowCount),
+        cSandTwo: this.actualMaterialValues(recipe.cSandTwo, volumePerBatch, rowCount),
+        twentyMM: this.actualMaterialValues(recipe.twentyMM, volumePerBatch, rowCount),
+        cement: this.actualMaterialValues(recipe.cement, volumePerBatch, rowCount),
+        gbbs: this.actualMaterialValues(recipe.gbbs, volumePerBatch, rowCount),
+        flash: this.actualMaterialValues(recipe.flash, volumePerBatch, rowCount),
+        water: this.actualMaterialValues(recipe.water, volumePerBatch, rowCount),
+        addiOne: this.actualMaterialValues(recipe.addiOne, volumePerBatch, rowCount),
       };
-      row.total =
-        row.tenMM +
-        row.cSandOne +
-        row.cSandTwo +
-        row.twentyMM +
-        row.cement +
-        row.gbbs +
-        row.flash +
-        row.water +
-        row.addiOne;
-      return row;
-    });
+
+      this.batchRows = Array.from({ length: rowCount }, (_, index) => {
+        const volume = volumePerBatch;
+        const row = {
+          number: index + 1,
+          volume,
+          seconds: 55 + ((index * 17 + recipe.rid * 7) % 76),
+          tenMM: actualMaterials.tenMM[index],
+          cSandOne: actualMaterials.cSandOne[index],
+          cSandTwo: actualMaterials.cSandTwo[index],
+          twentyMM: actualMaterials.twentyMM[index],
+          cement: actualMaterials.cement[index],
+          gbbs: actualMaterials.gbbs[index],
+          flash: actualMaterials.flash[index],
+          water: actualMaterials.water[index],
+          addiOne: actualMaterials.addiOne[index],
+          total: 0,
+        };
+        row.total =
+          row.tenMM +
+          row.cSandOne +
+          row.cSandTwo +
+          row.twentyMM +
+          row.cement +
+          row.gbbs +
+          row.flash +
+          row.water +
+          row.addiOne;
+        return row;
+      });
+    }
 
     this.cumulative = this.batchRows.reduce(
       (totals, row) => ({
@@ -296,68 +415,85 @@ export class BatchDetailsComponent implements OnChanges {
       },
     );
 
-    const batchCount = this.batchRows.length;
+    const count = this.batchRows.length || 1;
     this.average = {
-      tenMM: this.cumulative.tenMM / batchCount,
-      cSandOne: this.cumulative.cSandOne / batchCount,
-      cSandTwo: this.cumulative.cSandTwo / batchCount,
-      twentyMM: this.cumulative.twentyMM / batchCount,
-      cement: this.cumulative.cement / batchCount,
-      gbbs: this.cumulative.gbbs / batchCount,
-      flash: this.cumulative.flash / batchCount,
-      water: this.cumulative.water / batchCount,
-      addiOne: this.cumulative.addiOne / batchCount,
-      total: this.cumulative.total / batchCount,
+      tenMM: this.cumulative.tenMM / count,
+      cSandOne: this.cumulative.cSandOne / count,
+      cSandTwo: this.cumulative.cSandTwo / count,
+      twentyMM: this.cumulative.twentyMM / count,
+      cement: this.cumulative.cement / count,
+      gbbs: this.cumulative.gbbs / count,
+      flash: this.cumulative.flash / count,
+      water: this.cumulative.water / count,
+      addiOne: this.cumulative.addiOne / count,
+      total: this.cumulative.total / count,
     };
 
-    this.target = {
-      tenMM: Number(recipe.tenMM) * this.report.batchSize,
-      cSandOne: Number(recipe.cSandOne) * this.report.batchSize,
-      cSandTwo: Number(recipe.cSandTwo) * this.report.batchSize,
-      twentyMM: Number(recipe.twentyMM) * this.report.batchSize,
-      cement: Number(recipe.cement) * this.report.batchSize,
-      gbbs: Number(recipe.gbbs) * this.report.batchSize,
-      flash: Number(recipe.flash) * this.report.batchSize,
-      water: Number(recipe.water) * this.report.batchSize,
-      addiOne: Number(recipe.addiOne) * this.report.batchSize,
-      total: this.recipeTotal * this.report.batchSize,
-    };
+    const recipe = this.report.recipe;
+    const batchSize = this.report.batchSize || 0;
+    const loadQty = this.report.loadQuantity || 0;
 
-    this.targetTotal = {
-      tenMM: Number(recipe.tenMM) * this.report.loadQuantity,
-      cSandOne: Number(recipe.cSandOne) * this.report.loadQuantity,
-      cSandTwo: Number(recipe.cSandTwo) * this.report.loadQuantity,
-      twentyMM: Number(recipe.twentyMM) * this.report.loadQuantity,
-      cement: Number(recipe.cement) * this.report.loadQuantity,
-      gbbs: Number(recipe.gbbs) * this.report.loadQuantity,
-      flash: Number(recipe.flash) * this.report.loadQuantity,
-      water: Number(recipe.water) * this.report.loadQuantity,
-      addiOne: Number(recipe.addiOne) * this.report.loadQuantity,
-      total: this.recipeTotal * this.report.loadQuantity,
-    };
+    if (recipe) {
+      this.target = {
+        tenMM: Number(recipe.tenMM || 0) * batchSize,
+        cSandOne: Number(recipe.cSandOne || 0) * batchSize,
+        cSandTwo: Number(recipe.cSandTwo || 0) * batchSize,
+        twentyMM: Number(recipe.twentyMM || 0) * batchSize,
+        cement: Number(recipe.cement || 0) * batchSize,
+        gbbs: Number(recipe.gbbs || 0) * batchSize,
+        flash: Number(recipe.flash || 0) * batchSize,
+        water: Number(recipe.water || 0) * batchSize,
+        addiOne: Number(recipe.addiOne || 0) * batchSize,
+        total: this.recipeTotal * batchSize,
+      };
+
+      this.targetTotal = {
+        tenMM: Number(recipe.tenMM || 0) * loadQty,
+        cSandOne: Number(recipe.cSandOne || 0) * loadQty,
+        cSandTwo: Number(recipe.cSandTwo || 0) * loadQty,
+        twentyMM: Number(recipe.twentyMM || 0) * loadQty,
+        cement: Number(recipe.cement || 0) * loadQty,
+        gbbs: Number(recipe.gbbs || 0) * loadQty,
+        flash: Number(recipe.flash || 0) * loadQty,
+        water: Number(recipe.water || 0) * loadQty,
+        addiOne: Number(recipe.addiOne || 0) * loadQty,
+        total: this.recipeTotal * loadQty,
+      };
+    }
   }
 
   get batchCount(): number {
-    return Math.ceil(this.report.loadQuantity / this.report.batchSize);
+    return (
+      this.batchRows.length ||
+      this.report?.batchCount ||
+      Math.ceil(
+        (this.report?.loadQuantity || 0) / (this.report?.batchSize || 1),
+      ) ||
+      0
+    );
   }
 
   get recipeTotal(): number {
-    const recipe = this.report.recipe;
+    if (this.report?.thVolume) {
+      return Number(this.report.thVolume);
+    }
+    const recipe = this.report?.recipe;
+    if (!recipe) return 0;
     return (
-      Number(recipe.tenMM) +
-      Number(recipe.cSandOne) +
-      Number(recipe.cSandTwo) +
-      Number(recipe.twentyMM) +
-      Number(recipe.cement) +
-      Number(recipe.gbbs) +
-      Number(recipe.flash) +
-      Number(recipe.water) +
-      Number(recipe.addiOne)
+      Number(recipe.tenMM || 0) +
+      Number(recipe.cSandOne || 0) +
+      Number(recipe.cSandTwo || 0) +
+      Number(recipe.twentyMM || 0) +
+      Number(recipe.cement || 0) +
+      Number(recipe.gbbs || 0) +
+      Number(recipe.flash || 0) +
+      Number(recipe.water || 0) +
+      Number(recipe.addiOne || 0)
     );
   }
 
   get cumulativeTotal(): number {
-    return this.cumulative.total;
+    return this.cumulative.total || Number(this.report?.caTotal ?? 0);
   }
 
   get moistureKg(): MoistureWeights {
@@ -388,19 +524,28 @@ export class BatchDetailsComponent implements OnChanges {
   }
 
   get waterCementRatio(): number | null {
-    const recipe = this.report.recipe;
-    const cementitious = Number(recipe.cement) + Number(recipe.gbbs) + Number(recipe.flash);
-    return cementitious > 0 ? Number(recipe.water) / cementitious : null;
+    if (this.report?.wcRatio !== undefined && this.report?.wcRatio !== null) {
+      return Number(this.report.wcRatio);
+    }
+    const recipe = this.report?.recipe;
+    if (!recipe) return null;
+    const cementitious =
+      Number(recipe.cement || 0) +
+      Number(recipe.gbbs || 0) +
+      Number(recipe.flash || 0);
+    return cementitious > 0 ? Number(recipe.water || 0) / cementitious : null;
   }
 
-  formatNumber(value: number, digits = 1): string {
-    return value.toLocaleString(undefined, {
+  formatNumber(value: number | null | undefined, digits = 1): string {
+    const num = Number(value ?? 0);
+    return num.toLocaleString(undefined, {
       minimumFractionDigits: digits,
       maximumFractionDigits: digits,
     });
   }
 
-  formatDate(value: Date | string): string {
+  formatDate(value: Date | string | null | undefined): string {
+    if (!value) return '—';
     const d = new Date(value);
     if (isNaN(d.getTime())) return String(value);
     const day = String(d.getDate()).padStart(2, '0');
@@ -409,9 +554,15 @@ export class BatchDetailsComponent implements OnChanges {
     return `${day}/${month}/${year}`;
   }
 
-  formatTime(value: string): string {
+  formatTime(value: Date | string | null | undefined): string {
+    if (!value) return '—';
     const d = new Date(value);
-    if (isNaN(d.getTime())) return String(value);
+    if (isNaN(d.getTime())) {
+      if (typeof value === 'string' && /^\d{2}:\d{2}(:\d{2})?$/.test(value)) {
+        return value.length === 5 ? `${value}:00` : value;
+      }
+      return String(value);
+    }
     return d.toLocaleTimeString('en-GB', {
       hour: '2-digit',
       minute: '2-digit',
@@ -454,7 +605,7 @@ export class BatchDetailsComponent implements OnChanges {
       trid: this.report.truck?.trid ?? null,
       drid: this.report.driver?.drid ?? null,
       startTime: this.report.startTime || null,
-      endTime: reportDate,
+      endTime: this.endTimeValue || reportDate,
       batchCount: this.batchCount,
       batchSize: this.report.batchSize,
       orderQuantity: this.report.loadQuantity,

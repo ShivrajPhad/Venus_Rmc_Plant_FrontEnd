@@ -9,60 +9,53 @@
   </div>
 
   <article class="batch-details-paper" aria-label="Docket report">
-    <header class="company-heading">
+    <div class="company-heading">
       <strong>SHREE MAHALAXMI READYMIX</strong>
-    </header>
+    </div>
 
     <div class="report-banner">
       <div class="logo-row">
         <img src="/venus-docket-logo.png" alt="Venus Techno Equipment Pvt. Ltd." />
-        <strong
-          >{{ report.site.siteName
-          }}{{ report.site.siteAddress ? ', ' + report.site.siteAddress : '' }}</strong
-        >
+        <strong class="site-title">{{ siteHeading }}</strong>
       </div>
-      <h1>Docket Report</h1>
+      <div class="docket-title-bar">
+        <h1>Docket Report</h1>
+      </div>
     </div>
 
     <section class="docket-fields" aria-label="Selected docket details">
       <div class="docket-row primary-details">
-        <div class="docket-pair-group">
-          <span class="docket-pair"><b>Docket No:</b><span>{{ report.docketNumber }}</span></span>
-          <span class="docket-pair">
-            <b>&nbsp;</b><span>{{ formatDate(report.generatedAt) }}</span>
-          </span>
+        <div class="cell docket-no-cell">
+          <span class="docket-no"><b>Docket No:</b> {{ report.docketNumber || '—' }}</span>
+          <span class="docket-date">{{ formatDate(report.docketDate || report.generatedAt) }}</span>
         </div>
-        <div class="docket-pair-group">
-          <span class="docket-pair">
-            <b>Truck</b><span>{{ report.truck.truckNumber }}</span>
-          </span>
-          <span class="docket-pair driver">
-            <b>Driver</b><span>{{ report.driver.driverName }}</span>
-          </span>
+        <div class="cell truck-cell">
+          <b>Truck</b> <span>{{ report.truck?.truckNumber || '—' }}</span>
         </div>
-        <div class="docket-pair-group">
-          <span class="docket-pair">
-            <b>Start</b><span>{{ formatTime(report.startTime) }}</span>
-          </span>
-          <span class="docket-pair">
-            <b>End</b><span>{{ formatTime(report.endTime || report.generatedAt) }}</span>
-          </span>
+        <div class="cell driver-cell">
+          <b>Driver</b> <span>{{ formatDriver(report.driver?.driverName) }}</span>
+        </div>
+        <div class="cell start-cell">
+          <b>Start</b> <span>{{ formatTime(report.startTime) }}</span>
+        </div>
+        <div class="cell end-cell">
+          <b>End</b> <span>{{ formatTime(endTimeValue) }}</span>
         </div>
       </div>
-      <div class="docket-row party-details ">
-        <div class="customer">
-          <b>Customer:</b><span class="customerdetails">{{ report.customer.customerName }}</span>
+      <div class="docket-row party-details">
+        <div class="cell customer-cell">
+          <b>Customer :</b> <span>{{ report.customer?.customerName || '—' }}</span>
         </div>
-        <div class="customer">
-          <b >Site:</b><span class="customerdetails">{{ report.site.siteName }}</span>
+        <div class="cell site-cell">
+          <b>Site:</b> <span>{{ report.site?.siteName || '—' }}</span>
         </div>
       </div>
       <div class="docket-row address-details">
-        <div class="customerborder">
-          <b>C.Address:</b><span class="customerborder">{{ report.customer.customerAddress || '—' }}</span>
+        <div class="cell c-address-cell">
+          <b>C.Address :</b> <span>{{ report.customer?.customerAddress || '—' }}</span>
         </div>
-        <div class="customerborder">
-          <b>S.Address:</b><span class="customerborder">{{ report.site.siteAddress || '—' }}</span>
+        <div class="cell s-address-cell">
+          <b>S.Address:</b> <span>{{ report.site?.siteAddress || '—' }}</span>
         </div>
       </div>
     </section>
@@ -90,10 +83,10 @@
       </thead>
       <tbody>
         <tr>
-          <td>{{ report.recipe.recipeName }}</td>
-          <td>{{ formatNumber(recipeTotal) }} Kg/M³</td>
-          <td>{{ report.customer.customerName }}</td>
-          <td>{{ formatNumber(report.loadQuantity, 2) }} / {{ report.orderQuantity ? formatNumber(report.orderQuantity, 2) : '—' }}</td>
+          <td>{{ report.recipe?.recipeName || '—' }}</td>
+          <td>{{ formatNumber(recipeTotal, 1) }} Kg/M³</td>
+          <td>{{ report.customer?.customerName || '—' }}</td>
+          <td>{{ formatDeliveredOrdered() }}</td>
           <td>{{ formatDate(report.generatedAt) }}</td>
           <td>{{ formatNumber(batchCount, 0) }}</td>
           <td>{{ formatNumber(report.batchSize, 2) }}</td>
@@ -112,27 +105,31 @@
         </colgroup>
         <thead>
           <tr class="group-head">
+            <th colspan="2" rowspan="2">Batch</th>
             @for (group of visibleColumnGroups; track group.label) {
-                @if (group.label === 'Batch') {
-                  <th colspan="2"></th>
+              @if (group.label !== 'Batch') {
+                @if (group.label === 'Total') {
+                  <th [attr.colspan]="group.colspan" rowspan="2">{{ group.label }}</th>
                 } @else {
                   <th [attr.colspan]="group.colspan">{{ group.label }}</th>
                 }
               }
-            </tr>
-            <tr class="material-head small-head">
-              <th colspan="2">Batch</th>
-              @for (column of visibleColumns; track column.id) {
-                <th>{{ column.id === 'total' ? '' : column.label }}</th>
+            }
+          </tr>
+          <tr class="material-head small-head">
+            @for (column of visibleColumns; track column.id) {
+              @if (column.id !== 'total') {
+                <th>{{ column.label }}</th>
               }
-            </tr>
-            <tr class="unit-head">
-              <th>No</th>
-              <th>Sec</th>
-              @for (column of visibleColumns; track column.id) {
-                <th>Kg</th>
-              }
-            </tr>
+            }
+          </tr>
+          <tr class="unit-head">
+            <th>No</th>
+            <th>Sec</th>
+            @for (column of visibleColumns; track column.id) {
+              <th>Kg</th>
+            }
+          </tr>
         </thead>
         <tbody>
           @for (row of batchRows; track row.number) {
@@ -175,7 +172,7 @@
               <td>
                 @let moisture = getMoistureKg(column);
                 @if (moisture !== null) {
-                  {{ formatNumber(moisture, column.precision) }}
+                  {{ formatNumber(moisture, column.id === 'water' ? 2 : column.precision) }}
                 }
               </td>
             }
@@ -217,7 +214,7 @@
     </div>
 
     <section class="report-totals" aria-label="Production summary">
-      <div class="production-summary">
+      <div class="production-summary left-summary">
         <p>
           <b>Cummulative Actual Total :</b><strong>{{ formatNumber(cumulativeTotal) }}</strong>
         </p>
@@ -227,9 +224,11 @@
         <p>
           <b>Total Cycle :</b><strong>{{ formatNumber(batchCount, 0) }}</strong>
         </p>
-        <p class="cycle-status"><b>Cycle Status :</b><strong>{{ report.cycleStatus || 'Cycle Complete' }}</strong></p>
+        <p class="cycle-status">
+          <b>Cycle Status :</b><strong>{{ report.cycleStatus || 'Cycle Complete' }}</strong>
+        </p>
       </div>
-      <div class="production-summary">
+      <div class="production-summary right-summary">
         <p>
           <b>Actual Production Qty:</b>
           <strong>{{ formatNumber(report.loadQuantity, 2) }} M³</strong>
@@ -248,8 +247,14 @@
     </section>
 
     <footer class="signatures">
-      <span>Signature1:<i></i></span>
-      <span>Signature 2:<i></i></span>
+      <div class="sig-block">
+        <b>Signature1:</b>
+        <span class="sig-line"></span>
+      </div>
+      <div class="sig-block">
+        <b>Signature 2:</b>
+        <span class="sig-line"></span>
+      </div>
     </footer>
   </article>
 } @else {
