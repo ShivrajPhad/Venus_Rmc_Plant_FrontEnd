@@ -12,8 +12,11 @@ import {
 export class BatchReportService {
   private readonly http = inject(HttpClient);
 
-  getDocketDetails(docketNo: string): Observable<DocketReportDetails[]> {
-    const params = new HttpParams().set('docketNo', docketNo);
+  getDocketDetails(docketNo?: string): Observable<DocketReportDetails[]> {
+    let params = new HttpParams();
+    if (docketNo && docketNo.trim()) {
+      params = params.set('docketNo', docketNo.trim());
+    }
     return this.http.get<DocketReportDetails[]>(`${DOCKET_DATA_API_URL}/GetDocketDetails`, {
       params,
     });

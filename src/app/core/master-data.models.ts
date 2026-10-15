@@ -3,6 +3,7 @@ export type MasterRecord = Record<string, unknown>;
 export interface CustomerDetails extends MasterRecord {
   cid: number;
   customerName: string;
+  oder?: string;
   customerAddress: string;
 }
 

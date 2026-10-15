@@ -2,6 +2,7 @@ export interface SaveCustomerRequest {
   CID: number | null;
   CustomerName: string;
   CustomerAddress: string;
+  Oder: string;
   CustomerStatus: number;
   UserID: number;
 }

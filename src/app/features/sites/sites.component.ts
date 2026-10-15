@@ -83,6 +83,8 @@ function normalizeCustomer(value: unknown): CustomerDetails | null {
   const cid = Number(property(value, 'cid') ?? property(value, 'customerId'));
   const customerName = property(value, 'customerName');
   const customerAddress = property(value, 'customerAddress');
+  const rawOder = property(value, 'oder') ?? property(value, 'order');
+  const oder = typeof rawOder === 'string' ? rawOder : (rawOder == null ? '' : String(rawOder));
   if (
     !Number.isFinite(cid) ||
     typeof customerName !== 'string' ||
@@ -90,7 +92,7 @@ function normalizeCustomer(value: unknown): CustomerDetails | null {
   ) {
     return null;
   }
-  return { ...value, cid, customerName, customerAddress };
+  return { ...value, cid, customerName, oder, customerAddress };
 }
 
 @Component({

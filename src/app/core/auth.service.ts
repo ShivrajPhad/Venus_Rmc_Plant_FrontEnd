@@ -4,6 +4,8 @@ import { isPlatformBrowser } from '@angular/common';
 import { Observable, map, tap } from 'rxjs';
 
 const API_BASE_URL = 'https://localhost:44391/api';
+
+//const API_BASE_URL = 'http://venusrmc.runasp.net/api';
 const TOKEN_STORAGE_KEY = 'venus-rmc-token';
 
 function findToken(value: unknown): string | null {

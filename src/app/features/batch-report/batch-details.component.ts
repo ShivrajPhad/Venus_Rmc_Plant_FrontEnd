@@ -22,6 +22,7 @@ export interface BatchDetailsReport {
   loadQuantity: number;
   batchSize: number;
   generatedAt: Date | string;
+  reportDate?: Date | string | null;
   visibleColumns: BatchMaterialColumnId[];
   docketDate?: Date | string | null;
   batchDetails?: BatchDetailSaveRequest[];
@@ -217,7 +218,7 @@ export class BatchDetailsComponent implements OnChanges {
   get siteHeading(): string {
     const site = this.report?.site;
     const parts = [site?.siteName, site?.siteAddress].filter(Boolean);
-    return parts.join(',') || 'AMANORA PARK,MAHADA';
+    return 'AMANORA PARK,MAHADA';
   }
 
   get endTimeValue(): string {
@@ -473,12 +474,55 @@ export class BatchDetailsComponent implements OnChanges {
     );
   }
 
-  get recipeTotal(): number {
+  get cummulativeSetTotal(): number {
+    if (this.targetTotal?.total) {
+      return this.targetTotal.total;
+    }
+    const sum =
+      (this.targetTotal?.tenMM || 0) +
+      (this.targetTotal?.cSandOne || 0) +
+      (this.targetTotal?.cSandTwo || 0) +
+      (this.targetTotal?.twentyMM || 0) +
+      (this.targetTotal?.cement || 0) +
+      (this.targetTotal?.gbbs || 0) +
+      (this.targetTotal?.flash || 0) +
+      (this.targetTotal?.water || 0) +
+      (this.targetTotal?.addiOne || 0);
+    if (sum > 0) return sum;
+
+    const recipe = this.report?.recipe;
+    const qty = this.actualProductionQty;
+    if (recipe && qty > 0) {
+      return this.recipeTotal * qty;
+    }
+    return 0;
+  }
+
+  get actualProductionQty(): number {
+    return Number(
+      this.report?.productionQuantity ??
+      this.report?.loadQuantity ??
+      0,
+    );
+  }
+
+  get thVolume(): number {
+    const actualQty = this.actualProductionQty;
+    const setTotal = this.cummulativeSetTotal;
+    if (actualQty > 0 && setTotal > 0) {
+      return setTotal / actualQty;
+    }
     if (this.report?.thVolume) {
       return Number(this.report.thVolume);
     }
+    return this.recipeTotal;
+  }
+
+  get recipeTotal(): number {
     const recipe = this.report?.recipe;
-    if (!recipe) return 0;
+    if (!recipe) {
+      return this.report?.thVolume ? Number(this.report.thVolume) : 0;
+    }
     return (
       Number(recipe.tenMM || 0) +
       Number(recipe.cSandOne || 0) +
@@ -591,9 +635,13 @@ export class BatchDetailsComponent implements OnChanges {
 
   toSaveRequest(): DocketDetailsSaveRequest {
     const reportDate =
-      this.report.generatedAt instanceof Date
-        ? this.report.generatedAt.toISOString()
-        : new Date(this.report.generatedAt).toISOString();
+      this.report.reportDate
+        ? this.report.reportDate instanceof Date
+          ? this.report.reportDate.toISOString()
+          : new Date(this.report.reportDate).toISOString()
+        : this.report.generatedAt instanceof Date
+          ? this.report.generatedAt.toISOString()
+          : new Date(this.report.generatedAt).toISOString();
 
     return {
       dockID: 0,
@@ -608,9 +656,9 @@ export class BatchDetailsComponent implements OnChanges {
       endTime: this.endTimeValue || reportDate,
       batchCount: this.batchCount,
       batchSize: this.report.batchSize,
-      orderQuantity: this.report.loadQuantity,
-      deliveredQuantity: this.report.loadQuantity,
-      thVolume: this.recipeTotal,
+      orderQuantity: this.report.orderQuantity ?? this.report.loadQuantity,
+      deliveredQuantity: this.report.deliveredQuantity ?? this.report.loadQuantity,
+      thVolume: Number(this.thVolume.toFixed(2)),
       reportDate: reportDate,
       caTotal: Number(this.cumulativeTotal.toFixed(1)),
       productionQuantity: this.report.loadQuantity,

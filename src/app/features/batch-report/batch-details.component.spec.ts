@@ -7,7 +7,7 @@ import {
 
 const report: BatchDetailsReport = {
   docketNumber: '456987',
-  customer: { cid: 1, customerName: 'Customer', customerAddress: 'Address' },
+  customer: { cid: 1, customerName: 'Customer', oder: 'OD-001', customerAddress: 'Address' },
   site: { sid: 1, cid: 1, siteName: 'Site', siteAddress: 'Address' },
   recipe: {
     rid: 1,
@@ -191,12 +191,25 @@ describe('BatchDetailsComponent', () => {
     expect(component.summaryTableWidth).toBeCloseTo(17 + (83 / 3) * 2);
     expect(component.visibleColumnGroups).toEqual([
       { label: 'Batch', colspan: 2 },
-      { label: 'Aggregate (Kg)', colspan: 1 },
+      { label: 'Aggragate (Kg)', colspan: 1 },
       { label: 'Water', colspan: 1 },
       { label: 'Total', colspan: 1 },
     ]);
     expect(component.getSummaryValue(component.cumulative, component.visibleColumns[2])).toBe(
       component.cumulative.total,
     );
+  });
+
+  it('calculates TH Volume using Cummulative Set Total / Actual Production Qty and includes it in save request', () => {
+    const component = new BatchDetailsComponent();
+    component.report = report;
+    component.ngOnChanges();
+
+    expect(component.cummulativeSetTotal).toBe(1116);
+    expect(component.actualProductionQty).toBe(6);
+    expect(component.thVolume).toBe(186);
+
+    const saveRequest = component.toSaveRequest();
+    expect(saveRequest.thVolume).toBe(186);
   });
 });

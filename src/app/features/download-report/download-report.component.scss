@@ -2,6 +2,8 @@
   display: block;
   color: #111;
   font-family: Arial, Helvetica, sans-serif;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
 .no-report-card {
@@ -16,6 +18,8 @@
   margin: 0 auto;
   background: #fff;
   line-height: 1.25;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
 .company-heading {
@@ -273,7 +277,7 @@
   }
 }
 
-@media (max-width: 700px) {
+@media screen and (max-width: 700px) {
   .primary-details {
     grid-template-columns: 1fr;
   }
@@ -294,5 +298,29 @@
 
   .signatures .sig-block {
     width: 100%;
+  }
+}
+
+@media print {
+  :host {
+    display: block;
+    width: 100%;
+  }
+
+  .batch-details-paper {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  tr,
+  .docket-fields,
+  .recipe-summary,
+  .batch-table,
+  .recipe-totals,
+  .report-totals,
+  .signatures {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }

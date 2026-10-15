@@ -6,7 +6,7 @@
 
   <div class="report-banner">
     <div class="logo-row">
-      <img src="/venus-docket-logo.png" alt="Venus Techno Equipment Pvt. Ltd." />
+      <img src="./venus-docket-logo.png" alt="Venus Techno Equipment Pvt. Ltd." />
       <strong class="site-title">{{ siteHeading }}</strong>
     </div>
     <div class="docket-title-bar">
@@ -18,7 +18,7 @@
     <div class="docket-row primary-details">
       <div class="cell docket-no-cell">
         <span class="docket-no"><b>Docket No:</b> {{ report.docketNumber || '—' }}</span>
-        <span class="docket-date">{{ formatDate(report.docketDate || report.generatedAt) }}</span>
+        <span class="docket-date">{{ formatDate(report.docketDate || report.reportDate || report.generatedAt) }}</span>
       </div>
       <div class="cell truck-cell">
         <b>Truck</b> <span>{{ report.truck?.truckNumber || '—' }}</span>
@@ -63,23 +63,23 @@
     </colgroup>
     <thead>
       <tr>
-        <th scope="col">Recipe</th>
+        <th scope="col" style="border-top: 2px solid;">Recipe</th>
         <th scope="col">TH Volume</th>
         <th scope="col">Oder</th>
-        <th scope="col">Delivered/Ordered</th>
-        <th scope="col">Report Date</th>
-        <th scope="col">Batch Count</th>
-        <th scope="col">Batch Size</th>
+        <th scope="col"  style="border-top: 2px solid;border-right: 2px solid;">Delivered/Ordered</th>
+        <th scope="col"  style="border-top: 2px solid;border-right: 2px solid;">Report Date</th>
+        <th scope="col"  style="border-top: 2px solid;border-right: 2px solid;">Batch Count</th>
+        <th scope="col"  style="border-top: 2px solid;">Batch Size</th>
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>{{ report.recipe?.recipeName || '—' }}</td>
-        <td>{{ formatNumber(recipeTotal, 1) }} Kg/M³</td>
-        <td>{{ report.customer?.customerName || '—' }}</td>
-        <td>{{ formatDeliveredOrdered() }}</td>
-        <td>{{ formatDate(report.generatedAt) }}</td>
-        <td>{{ formatNumber(batchCount, 0) }}</td>
+      <tr class="summary-row">
+        <td style="border-top: 2px solid; border-right: 2px solid;">{{ report.recipe?.recipeName || '—' }}</td>
+        <td  style="border-right: 2px solid;">{{ formatNumber(thVolume, 1) }} Kg/M³</td>
+        <td  style="border-top: 2px solid;">{{ report.customer?.oder || report.customer?.customerName || '—' }}</td>
+        <td   style="border-top: 2px solid;">{{ formatDeliveredOrdered() }}</td>
+        <td  style="border-top: 2px solid; font-weight: 100;">{{ formatDate(report.reportDate || report.generatedAt) }}</td>
+        <td  style="border-top: 2px solid;">{{ formatNumber(batchCount, 0) }}</td>
         <td>{{ formatNumber(report.batchSize, 2) }}</td>
       </tr>
     </tbody>
@@ -210,7 +210,7 @@
         <b>Cummulative Actual Total :</b><strong>{{ formatNumber(cumulativeTotal) }}</strong>
       </p>
       <p>
-        <b>Cummulative Set Total :</b><strong>{{ formatNumber(targetTotal.total) }}</strong>
+        <b>Cummulative Set Total :</b><strong>{{ formatNumber(cummulativeSetTotal) }}</strong>
       </p>
       <p>
         <b>Total Cycle :</b><strong>{{ formatNumber(batchCount, 0) }}</strong>
@@ -222,7 +222,7 @@
     <div class="production-summary right-summary">
       <p>
         <b>Actual Production Qty:</b>
-        <strong>{{ formatNumber(report.loadQuantity, 2) }} M³</strong>
+        <strong>{{ formatNumber(actualProductionQty, 2) }} M³</strong>
       </p>
       <p>
         <b>Production Qty :</b>

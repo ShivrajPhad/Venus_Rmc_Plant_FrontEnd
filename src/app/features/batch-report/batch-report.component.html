@@ -53,9 +53,27 @@
       </div>
 
       <div class="field">
+        <label for="docket-no">Docket No</label>
+        <input id="docket-no" name="docketNo" type="text" placeholder="e.g. 800" [(ngModel)]="docketNo"
+          (ngModelChange)="invalidateReport()" />
+      </div>
+
+      <div class="field">
         <label for="load-quantity">Load quantity <span aria-hidden="true">*</span></label>
         <input id="load-quantity" name="loadQuantity" type="number" min="0.001" step="any" inputmode="decimal"
           placeholder="Enter load quantity" [(ngModel)]="loadQuantity" (ngModelChange)="invalidateReport()" required />
+      </div>
+
+      <div class="field">
+        <label for="delivered-quantity">Delivered quantity</label>
+        <input id="delivered-quantity" name="deliveredQuantity" type="number" min="0" step="any" inputmode="decimal"
+          placeholder="Enter delivered quantity" [(ngModel)]="deliveredQuantity" (ngModelChange)="invalidateReport()" />
+      </div>
+
+      <div class="field">
+        <label for="ordered-quantity">Ordered quantity</label>
+        <input id="ordered-quantity" name="orderedQuantity" type="number" min="0" step="any" inputmode="decimal"
+          placeholder="Enter ordered quantity" [(ngModel)]="orderedQuantity" (ngModelChange)="invalidateReport()" />
       </div>
 
       <div class="field">
@@ -71,8 +89,8 @@
       </div>
 
       <div class="field">
-        <label for="docket-no">Docket No</label>
-        <input id="docket-no" name="docketNo" type="text" placeholder="e.g. 800" [(ngModel)]="docketNo"
+        <label for="report-date">Report date</label>
+        <input id="report-date" name="reportDate" type="date" [(ngModel)]="reportDate"
           (ngModelChange)="invalidateReport()" />
       </div>
     </div>
@@ -113,7 +131,7 @@
   <div class="preview-heading">
     <p class="section-kicker">GENERATED REPORT</p>
     <h2 id="preview-title">Batch details</h2>
-    <p>Generated {{ formatReportDate(generatedReport.generatedAt) }}</p>
+    <p>Generated {{ formatReportDate(generatedReport.reportDate || generatedReport.generatedAt) }}</p>
   </div>
   
     <app-batch-details [report]="generatedReport" />
@@ -124,9 +142,6 @@
     </button>
     <button class="button button-secondary" type="button" (click)="printReport()">
       Print / Save as PDF
-    </button>
-    <button class="button button-secondary" type="button" (click)="saveReport()">
-      Download CSV
     </button>
     @if (saveMessage) {
     <p class="save-message" role="status">{{ saveMessage }}</p>

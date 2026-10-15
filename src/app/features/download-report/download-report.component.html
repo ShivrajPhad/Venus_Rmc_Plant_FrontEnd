@@ -15,7 +15,7 @@
 
     <div class="report-banner">
       <div class="logo-row">
-        <img src="/venus-docket-logo.png" alt="Venus Techno Equipment Pvt. Ltd." />
+        <img src="./venus-docket-logo.png" alt="Venus Techno Equipment Pvt. Ltd." />
         <strong class="site-title">{{ siteHeading }}</strong>
       </div>
       <div class="docket-title-bar">
@@ -84,8 +84,8 @@
       <tbody>
         <tr>
           <td>{{ report.recipe?.recipeName || '—' }}</td>
-          <td>{{ formatNumber(recipeTotal, 1) }} Kg/M³</td>
-          <td>{{ report.customer?.customerName || '—' }}</td>
+          <td>{{ formatNumber(thVolume, 1) }} Kg/M³</td>
+          <td>{{ report.customer?.oder || report.customer?.customerName || '—' }}</td>
           <td>{{ formatDeliveredOrdered() }}</td>
           <td>{{ formatDate(report.generatedAt) }}</td>
           <td>{{ formatNumber(batchCount, 0) }}</td>
@@ -219,7 +219,7 @@
           <b>Cummulative Actual Total :</b><strong>{{ formatNumber(cumulativeTotal) }}</strong>
         </p>
         <p>
-          <b>Cummulative Set Total :</b><strong>{{ formatNumber(targetTotal.total) }}</strong>
+          <b>Cummulative Set Total :</b><strong>{{ formatNumber(cummulativeSetTotal) }}</strong>
         </p>
         <p>
           <b>Total Cycle :</b><strong>{{ formatNumber(batchCount, 0) }}</strong>
@@ -231,7 +231,7 @@
       <div class="production-summary right-summary">
         <p>
           <b>Actual Production Qty:</b>
-          <strong>{{ formatNumber(report.loadQuantity, 2) }} M³</strong>
+          <strong>{{ formatNumber(actualProductionQty, 2) }} M³</strong>
         </p>
         <p>
           <b>Production Qty :</b>

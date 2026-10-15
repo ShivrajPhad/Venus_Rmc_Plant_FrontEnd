@@ -16,6 +16,7 @@ import { SaveCustomerRequest } from './customer';
 
 interface CustomerForm {
   customerName: string;
+  oder: string;
   customerAddress: string;
 }
 
@@ -36,6 +37,8 @@ function normalizeCustomer(value: unknown): CustomerDetails | null {
   const cid = Number(property(value, 'cid') ?? property(value, 'customerId'));
   const customerName = property(value, 'customerName');
   const customerAddress = property(value, 'customerAddress');
+  const rawOder = property(value, 'oder') ?? property(value, 'order');
+  const oder = typeof rawOder === 'string' ? rawOder : (rawOder == null ? '' : String(rawOder));
   if (
     !Number.isFinite(cid) ||
     typeof customerName !== 'string' ||
@@ -44,7 +47,7 @@ function normalizeCustomer(value: unknown): CustomerDetails | null {
     return null;
   }
 
-  return { ...value, cid, customerName, customerAddress };
+  return { ...value, cid, customerName, oder, customerAddress };
 }
 
 function extractCustomerRows(value: unknown): CustomerDetails[] | null {
@@ -124,7 +127,11 @@ export class CustomersComponent implements OnInit, OnDestroy {
   get filteredRows(): CustomerDetails[] {
     const search = this.searchTerm.trim().toLocaleLowerCase();
     return search
-      ? this.rows.filter((customer) => customer.customerName.toLocaleLowerCase().includes(search))
+      ? this.rows.filter(
+          (customer) =>
+            customer.customerName.toLocaleLowerCase().includes(search) ||
+            Boolean(customer.oder && customer.oder.toLocaleLowerCase().includes(search)),
+        )
       : this.rows;
   }
 
@@ -198,6 +205,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
     this.editingCustomer = customer;
     this.customerForm = {
       customerName: customer.customerName,
+      oder: customer.oder ?? '',
       customerAddress: customer.customerAddress,
     };
     this.saveError = '';
@@ -233,9 +241,10 @@ export class CustomersComponent implements OnInit, OnDestroy {
     this.saveError = '';
     this.successMessage = '';
     const customerName = this.customerForm.customerName.trim();
+    const oder = this.customerForm.oder.trim();
     const customerAddress = this.customerForm.customerAddress.trim();
-    if (!customerName || !customerAddress) {
-      this.saveError = 'Customer name and address are required.';
+    if (!customerName || !oder || !customerAddress) {
+      this.saveError = 'Customer name, oder, and address are required.';
       return;
     }
 
@@ -250,6 +259,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
       CID: this.editingCustomer?.cid ?? null,
       CustomerName: customerName,
       CustomerAddress: customerAddress,
+      Oder: oder,
       CustomerStatus: 1,
       UserID: userId,
     };
@@ -294,7 +304,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
   }
 
   private emptyForm(): CustomerForm {
-    return { customerName: '', customerAddress: '' };
+    return { customerName: '', oder: '', customerAddress: '' };
   }
 
   private clearSuccessMessageTimer(): void {

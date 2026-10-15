@@ -17,11 +17,20 @@
         type="search"
         [(ngModel)]="docketNo"
         placeholder="Enter docket number"
-        required
       />
-      <button class="button button-primary" type="submit" [disabled]="loading || !docketNo.trim()">
+      <button class="button button-primary" type="submit" [disabled]="loading">
         {{ loading ? 'Searching…' : 'Search' }}
       </button>
+      @if (docketNo.trim() || searched) {
+        <button
+          class="button button-secondary"
+          type="button"
+          (click)="clearSearch()"
+          [disabled]="loading"
+        >
+          Clear
+        </button>
+      }
     </div>
   </form>
 
@@ -29,8 +38,10 @@
     <p class="message error-message" role="alert">{{ error }}</p>
   } @else if (loading) {
     <p class="message loading-message" role="status">Loading docket details…</p>
-  } @else if (searched && dockets.length === 0) {
-    <p class="message" role="status">No docket reports found for this docket number.</p>
+  } @else if (dockets.length === 0) {
+    <p class="message" role="status">
+      {{ searched ? 'No docket reports found for this docket number.' : 'No docket reports available.' }}
+    </p>
   }
 </section>
 
@@ -38,7 +49,7 @@
   <section class="report-card list-card" aria-labelledby="list-title">
     <div class="card-heading">
       <div>
-        <p class="section-kicker">SEARCH RESULTS</p>
+        <p class="section-kicker">{{ searched ? 'SEARCH RESULTS' : 'ALL DOCKET REPORTS' }}</p>
         <h2 id="list-title">Docket details</h2>
       </div>
       <span class="record-count"
@@ -63,7 +74,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (docket of dockets; track docket.dockID) {
+          @for (docket of pagedDockets; track docket.dockID) {
             <tr>
               <td>{{ docket.docketNo || '—' }}</td>
               <td>{{ formatDate(docket.docketDate) }}</td>
@@ -76,7 +87,6 @@
               <td>{{ docket.batchCount ?? docket.batchDetails?.length ?? '—' }}</td>
               <td>
                 <div class="row-actions">
-                  
                   <button
                     class="button button-secondary"
                     type="button"
@@ -93,6 +103,40 @@
           }
         </tbody>
       </table>
+    </div>
+
+    <div class="pagination">
+      <span class="pagination-summary">
+        Showing {{ firstVisibleRecord }}–{{ lastVisibleRecord }} of {{ dockets.length }}
+      </span>
+      <div class="pagination-controls">
+        <label for="report-page-size">Rows per page</label>
+        <select id="report-page-size" [value]="pageSize" (change)="changePageSize($event)">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+        <button
+          class="page-button"
+          type="button"
+          (click)="page = page - 1"
+          [disabled]="page <= 1"
+          aria-label="Previous page"
+        >
+          Previous
+        </button>
+        <span>Page {{ page }} of {{ pageCount }}</span>
+        <button
+          class="page-button"
+          type="button"
+          (click)="page = page + 1"
+          [disabled]="page >= pageCount"
+          aria-label="Next page"
+        >
+          Next
+        </button>
+      </div>
     </div>
   </section>
 }

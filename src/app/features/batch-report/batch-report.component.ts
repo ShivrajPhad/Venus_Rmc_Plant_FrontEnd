@@ -97,6 +97,9 @@ export class BatchReportComponent implements OnInit {
   startTime = '';
   loadQuantity: number | null = null;
   batchSize: number | null = null;
+  deliveredQuantity: number | null = null;
+  orderedQuantity: number | null = null;
+  reportDate = this.getTodayDateString();
   loading = true;
   saving = false;
   dataError = '';
@@ -259,6 +262,10 @@ export class BatchReportComponent implements OnInit {
       this.batchSize === null ||
       !Number.isFinite(this.batchSize) ||
       this.batchSize <= 0 ||
+      (this.deliveredQuantity !== null &&
+        (!Number.isFinite(this.deliveredQuantity) || this.deliveredQuantity < 0)) ||
+      (this.orderedQuantity !== null &&
+        (!Number.isFinite(this.orderedQuantity) || this.orderedQuantity < 0)) ||
       recipeValues.some((value) => !Number.isFinite(Number(value)) || Number(value) < 0)
     ) {
       this.formError =
@@ -274,6 +281,10 @@ export class BatchReportComponent implements OnInit {
       return;
     }
 
+    const reportDateObj = this.reportDate
+      ? new Date(`${this.reportDate}T00:00:00`)
+      : new Date();
+
     this.formError = '';
     this.saveMessage = '';
     this.saveError = '';
@@ -288,9 +299,10 @@ export class BatchReportComponent implements OnInit {
       loadQuantity: this.loadQuantity,
       batchSize: this.batchSize,
       generatedAt: new Date(),
+      reportDate: this.reportDate ? reportDateObj : new Date(),
       visibleColumns,
-      orderQuantity: this.loadQuantity,
-      deliveredQuantity: this.loadQuantity,
+      orderQuantity: this.orderedQuantity ?? this.loadQuantity,
+      deliveredQuantity: this.deliveredQuantity ?? this.loadQuantity,
     };
   }
 
@@ -304,6 +316,9 @@ export class BatchReportComponent implements OnInit {
       startTime: '',
       loadQuantity: null,
       batchSize: null,
+      deliveredQuantity: null,
+      orderedQuantity: null,
+      reportDate: this.getTodayDateString(),
     });
     this.docketNo = '800';
     this.customerId = null;
@@ -314,6 +329,9 @@ export class BatchReportComponent implements OnInit {
     this.startTime = '';
     this.loadQuantity = null;
     this.batchSize = null;
+    this.deliveredQuantity = null;
+    this.orderedQuantity = null;
+    this.reportDate = this.getTodayDateString();
     this.report = null;
     this.formError = '';
     this.saveMessage = '';
@@ -327,9 +345,31 @@ export class BatchReportComponent implements OnInit {
 
     const count = Math.ceil(report.loadQuantity / report.batchSize);
     const reportDate =
-      report.generatedAt instanceof Date
-        ? report.generatedAt.toISOString()
-        : new Date(report.generatedAt).toISOString();
+      report.reportDate
+        ? report.reportDate instanceof Date
+          ? report.reportDate.toISOString()
+          : new Date(report.reportDate).toISOString()
+        : report.generatedAt instanceof Date
+          ? report.generatedAt.toISOString()
+          : new Date(report.generatedAt).toISOString();
+
+    const actualProd = Number(report.productionQuantity ?? report.loadQuantity ?? 0);
+    const recipe = report.recipe;
+    let thVolume: number | null = report.thVolume ?? null;
+    if (recipe && actualProd > 0) {
+      const recipeMix =
+        Number(recipe.tenMM || 0) +
+        Number(recipe.cSandOne || 0) +
+        Number(recipe.cSandTwo || 0) +
+        Number(recipe.twentyMM || 0) +
+        Number(recipe.cement || 0) +
+        Number(recipe.gbbs || 0) +
+        Number(recipe.flash || 0) +
+        Number(recipe.water || 0) +
+        Number(recipe.addiOne || 0);
+      const cummulativeSetTotal = recipeMix * actualProd;
+      thVolume = Number((cummulativeSetTotal / actualProd).toFixed(2));
+    }
 
     return {
       dockID: 0,
@@ -344,9 +384,9 @@ export class BatchReportComponent implements OnInit {
       endTime: reportDate,
       batchCount: count,
       batchSize: report.batchSize,
-      orderQuantity: report.loadQuantity,
-      deliveredQuantity: report.loadQuantity,
-      thVolume: null,
+      orderQuantity: report.orderQuantity ?? report.loadQuantity,
+      deliveredQuantity: report.deliveredQuantity ?? report.loadQuantity,
+      thVolume,
       reportDate: reportDate,
       caTotal: null,
       productionQuantity: report.loadQuantity,
@@ -403,7 +443,15 @@ export class BatchReportComponent implements OnInit {
       ['Driver', this.report.driver.driverName],
       ['Truck', this.report.truck.truckNumber],
       ['Load quantity', this.report.loadQuantity],
+      ['Delivered quantity', this.report.deliveredQuantity ?? this.report.loadQuantity],
+      ['Ordered quantity', this.report.orderQuantity ?? this.report.loadQuantity],
       ['Batch size', this.report.batchSize],
+      [
+        'Report date',
+        this.report.reportDate
+          ? new Date(this.report.reportDate).toLocaleDateString()
+          : new Date(this.report.generatedAt).toLocaleDateString(),
+      ],
       ['Report generated', this.report.generatedAt.toLocaleString()],
     ];
     const csv = fields.map(([label, value]) => `${this.csvField(label)},${this.csvField(value)}`);
@@ -414,9 +462,13 @@ export class BatchReportComponent implements OnInit {
     const link = this.document.createElement('a');
     link.href = url;
     const reportDate =
-      this.report.generatedAt instanceof Date
-        ? this.report.generatedAt
-        : new Date(this.report.generatedAt);
+      this.report.reportDate
+        ? this.report.reportDate instanceof Date
+          ? this.report.reportDate
+          : new Date(this.report.reportDate)
+        : this.report.generatedAt instanceof Date
+          ? this.report.generatedAt
+          : new Date(this.report.generatedAt);
     link.download = `batch-report-${reportDate.toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
@@ -445,6 +497,14 @@ export class BatchReportComponent implements OnInit {
 
   formatReportDate(value: Date | string): string {
     return new Date(value).toLocaleDateString();
+  }
+
+  private getTodayDateString(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   private csvField(value: string | number): string {

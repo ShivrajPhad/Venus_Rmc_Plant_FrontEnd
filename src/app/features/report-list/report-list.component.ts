@@ -1,6 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { RecipeDetails } from '../../core/master-data.models';
@@ -44,7 +44,7 @@ function errorMessage(error: unknown, action: string): string {
   templateUrl: './report-list.component.html',
   styleUrl: './report-list.component.scss',
 })
-export class ReportListComponent {
+export class ReportListComponent implements OnInit {
   private readonly reportApi = inject(BatchReportService);
   private readonly recipesApi = inject(RecipeService);
   private readonly platformId = inject(PLATFORM_ID);
@@ -100,30 +100,75 @@ export class ReportListComponent {
   searched = false;
   error = '';
   message = '';
+  page = 1;
+  pageSize = 10;
 
-  async search(): Promise<void> {
-    const docketNo = this.docketNo.trim();
-    if (!docketNo || this.loading) {
+  ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    void this.loadDockets();
+  }
+
+  get pageCount(): number {
+    return Math.max(1, Math.ceil(this.dockets.length / this.pageSize));
+  }
+
+  get pagedDockets(): DocketReportDetails[] {
+    const validPage = Math.min(Math.max(1, this.page), this.pageCount);
+    const start = (validPage - 1) * this.pageSize;
+    return this.dockets.slice(start, start + this.pageSize);
+  }
+
+  get firstVisibleRecord(): number {
+    return this.dockets.length ? (this.page - 1) * this.pageSize + 1 : 0;
+  }
+
+  get lastVisibleRecord(): number {
+    return Math.min(this.page * this.pageSize, this.dockets.length);
+  }
+
+  changePageSize(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement)) {
+      return;
+    }
+    this.pageSize = Number(target.value);
+    this.page = 1;
+  }
+
+  async loadDockets(docketNo?: string): Promise<void> {
+    if (this.loading) {
       return;
     }
 
     this.loading = true;
     this.error = '';
     this.message = '';
-    this.dockets = [];
     this.selectedDocket = null;
     this.editedDocket = null;
     this.editing = false;
-    this.searched = true;
+    this.searched = Boolean(docketNo && docketNo.trim());
 
     try {
       const result = await firstValueFrom(this.reportApi.getDocketDetails(docketNo));
       this.dockets = Array.isArray(result) ? result : [];
+      this.page = 1;
     } catch (error) {
       this.error = errorMessage(error, 'load docket details');
     } finally {
       this.loading = false;
     }
+  }
+
+  async search(): Promise<void> {
+    const docketNo = this.docketNo.trim();
+    await this.loadDockets(docketNo || undefined);
+  }
+
+  async clearSearch(): Promise<void> {
+    this.docketNo = '';
+    await this.loadDockets();
   }
 
   edit(docket: DocketReportDetails): void {

@@ -140,6 +140,16 @@ export class DocketReportPdfService {
       tableLineWidth: 0.15,
     });
 
+    const recipeTotal = recipeValues.reduce((sum, value) => sum + value, 0);
+    const actualProdQty = Number(
+      docket.productionQuantity ?? docket.deliveredQuantity ?? 0,
+    );
+    const cummulativeSetTotal =
+      recipeTotal * (actualProdQty > 0 ? actualProdQty : 1);
+    const thVolume =
+      docket.thVolume ??
+      (actualProdQty > 0 ? cummulativeSetTotal / actualProdQty : recipeTotal);
+
     const deliveredStr = `${this.formatNumber(Number(docket.deliveredQuantity ?? 0), 1)} / ${docket.orderQuantity ? this.formatNumber(Number(docket.orderQuantity), 1) : '—'}`;
     const recipeSummary = [
       [
@@ -153,7 +163,7 @@ export class DocketReportPdfService {
       ],
       [
         docket.recipeName ?? '—',
-        `${this.formatNumber(recipeValues.reduce((sum, value) => sum + value, 0))} Kg/M³`,
+        `${this.formatNumber(thVolume)} Kg/M³`,
         docket.customerName ?? '—',
         deliveredStr,
         this.formatDate(docket.reportDate),
@@ -357,19 +367,18 @@ export class DocketReportPdfService {
     });
 
     const endY = this.finalY(pdf) + 4;
-    const recipeTotal = recipeValues.reduce((sum, value) => sum + value, 0);
     const productionRows = [
       [
         'Cummulative Actual Total :',
         this.formatNumber(actual('totalKg')),
         'Actual Production Qty:',
-        `${this.formatNumber(Number(docket.deliveredQuantity ?? 0), 2)} M³`,
+        `${this.formatNumber(actualProdQty, 2)} M³`,
       ],
       [
         'Cummulative Set Total :',
-        this.formatNumber(recipeTotal * Number(docket.deliveredQuantity ?? 0)),
+        this.formatNumber(cummulativeSetTotal),
         'Production Qty :',
-        `${this.formatNumber(Number(docket.deliveredQuantity ?? 0), 2)} M³`,
+        `${this.formatNumber(actualProdQty, 2)} M³`,
       ],
       [
         'Total Cycle :',
